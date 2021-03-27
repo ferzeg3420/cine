@@ -3623,3 +3623,8 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+.animated-clapper {
+    height: 1.5rem;
+    width: auto;
+}

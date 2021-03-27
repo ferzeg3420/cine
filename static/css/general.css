@@ -5,3 +5,8 @@ body {
   background-position: center;
   background-attachment: fixed;
 }
+
+.animated-clipboard {
+    height: 1.5rem;
+    width: auto;
+}

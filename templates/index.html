@@ -37,9 +37,7 @@
                             <tr>
                                 <th>
                                     Recommended
-                                </th>
-                                <th>
-                                    <img class="is-pulled-right"
+                                    <img class="animated-clapper"
                                          id="clap"
                                          src="[[=URL('static', 'images/clapboard.gif')]]" />
                                 </th>
@@ -64,10 +62,7 @@
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
-                                    Favorite Films
-                                </th>
-                                <th>
-                                    <img class="is-pulled-right" id="oscar" src="[[=URL('static', 'images/oscar.png')]]" />
+                                    Favorite Films&nbsp; &#128155;
                                 </th>
                             </tr>
                             <tr v-if="is_no_favs">
@@ -168,17 +163,12 @@
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
-                                    Cinephile Match
-                                </th>
-                                <th>
-                                    <img src="[[=URL('static', 'images/popcorn.svg')]]"
-                                         onerror="this.onerror=null; this.src='static/images/popcorn.svg'"
-                                    width="350"/>
+                                    People with Similar Taste &nbsp; &#127909;
                                 </th>
                             </tr>
                             <tr v-if="is_no_rec_people">
                                 <td>
-                                    <span class="is-italic"> No matches at the moment.</span>
+                                    <span class="is-italic"> No matching people </span>
                                 </td>
                             </tr>
                             <tr v-for="rp in rec_people">
@@ -215,11 +205,8 @@
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
-                                    Fellow Popcorn Munchers
-                                </th>
-                                <th></th>
-                                <th>
-                                    <img width="100" id= "popcorngif" src="[[=URL('static', 'images/popcorn.gif')]]" />
+                                    Movie Pals &nbsp; &#127871;
+
                                 </th>
                             </tr>
                             <tr v-for="fr in friends">
