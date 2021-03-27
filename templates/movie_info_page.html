@@ -61,6 +61,19 @@
         </div>
 
         <section class="section">
+
+            <div class="tile is ancestor" v-if="reviews.length === 0">
+                <div class="tile is-vertical">
+                    <div class="tile is-child notification is-light">
+                        <div class="level">
+                            <div class="level-left">
+                                <p>Leave a review</p>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                </div>
+            </div>
             <div class="tile is-ancestor" v-for="r in reviews">
                 <div class="tile is-vertical">
                     <!-- This div contains each review -->
