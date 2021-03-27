@@ -1,0 +1,35 @@
+
+In the homepage:
+    The favorites should contain links to the movie's page and also make the hearts reative.
+    The recommended movies should avoid recommending movies the user already likes or has selected as favorite.
+    Implement the friends mechanism by inserting friend1=me friend2=other guy when I send the request,
+        and friend1=otherguy friend2=me when the other guy accepts
+    Implement a limit to how many people/movies can be seen on each table in the homepage. Then a link to see the rest.
+    Reviews should not have the author. They should have a rating associated with the movie, and the title of the movie.
+
+For the movie info page:
+    make it
+    should contain the rating
+    reviews of everybody
+    favorite
+    description
+    Title in big, bold letters
+
+For the favorites page:
+    implement
+    Also should contain the stars
+
+Should we make a movies you've liked thingy?
+
+For the favorites page:
+    implement
+
+ Fix the bug on the recommendation engine.
+
+ Do the profile.
+
+ Do the movie synch
+
+ Do the chat
+
+ Do the bustop (a famous dance move)

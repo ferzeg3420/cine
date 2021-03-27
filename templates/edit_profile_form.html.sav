@@ -1,0 +1,112 @@
+[[extend 'layout.html']]
+<input type="hidden" id="hiddenID" name="hiddenID" value="[[=profile_id]]" />
+<input type="hidden" id="hiddenImg" name="hiddenImg" value="[[=formImg]]" />
+<input type="hidden" id="hiddenBio" name="hiddenBio" value="[[=formBio]]" />
+<input
+  type="hidden"
+  id="hiddenSelect"
+  name="hiddenSelect"
+  value="[[=formMovie]]"
+/>
+
+<div id="app" name="myProfile">
+  <div class="container">
+    <section class="section">
+      <div class="title">Edit profile</div>
+
+      <div class="field">
+        <label class="label">Choose a profile picture</label>
+        <div class="control">
+          <input
+            id="photo"
+            class="file"
+            type="file"
+            v-on:change="upload_file($event)"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Describe yourself</label>
+        <div class="control">
+          <textarea
+            class="textarea"
+            placeholder="Your bio"
+            v-model="bio"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Pick a favorite movie</label>
+        <div class="control">
+          <div class="select">
+            <select v-model="favMovie">
+              <option>Toy Story</option>
+              <option>The Avengers</option>
+              <option>Night of the Living Dead</option>
+              <option>The Wizard of Oz</option>
+              <option>The Scarlet Letter</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-grouped">
+        <div class="control">
+          <button class="button is-info" @click="saveUserProfile()">
+            Save
+          </button>
+        </div>
+        <div class="control">
+          <button class="button is-light" @click="goBack()">Cancel</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+[[block page_scripts]]
+<script>
+  var app = new Vue({
+    el: "#app",
+    data: {
+      photo: document.getElementById("hiddenImg").value,
+      bio: document.getElementById("hiddenBio").value,
+      favMovie: document.getElementById("hiddenSelect").value
+    },
+    methods: {
+      upload_file: function(event) {
+        this.photo = event.target.files[0];
+      },
+      saveUserProfile: function() {
+        let formData = new FormData();
+        formData.append("_formname", "myProfile");
+        formData.append("profileID", document.getElementById("hiddenID").value);
+        formData.append("photo", this.photo);
+        formData.append("bio", this.bio);
+        formData.append("favMovie", this.favMovie);
+        axios
+          .post("../api/update_profile", formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          })
+          .then(
+            function(result) {
+              console.log(result);
+              window.location = "../index";
+            },
+            function(error) {
+              console.log("error");
+            }
+          );
+        for (var pair of formData.entries()) {
+          console.log(pair[0] + ", " + pair[1]);
+        }
+      },
+      goBack: function() {
+        window.location = "../index";
+      }
+    }
+  });
+</script>
+[[end]]

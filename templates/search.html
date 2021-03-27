@@ -1,0 +1,214 @@
+[[extend 'layout.html']]
+
+<section class="section">
+    <div class="container">
+        <p class="level-item has-text-centered">
+            <img src="[[=URL('static', 'cinefinal2.png')]]" alt="" style="height: 250px;" >
+        </p>
+    </div>
+</section>
+
+<div id="vue-target">
+    <section class="section" v-if="page=='search_title'">
+        <div class="field has-addons">
+            <div class="control is-expanded">
+                <input type="text"
+                       v-model="user_movie"
+                       placeholder="The movie title you're looking for"
+                       @keyup.enter="fetch_title()"
+                       class="input"
+                       @input="reset_errors">
+            </div>
+            <div class="control">
+                <button v-if="is_loading" class="button is-warning is-loading is-light"
+                        type="submit"
+                        @click="fetch_title()">
+                    <i class="fa fa-fw fa-search"></i> Search Title
+                </button>
+                <button v-else class="button is-warning is-light"
+                        type="submit"
+                        @click="fetch_title()">
+                    <i class="fa fa-fw fa-search"></i> Search Title
+                </button>
+            </div>
+            <div class="control">
+                <div class="dropdown is-right is-active">
+                    <div class="dropdown-trigger">
+                        <button class="button is-warning"
+                                aria-haspopup="true"
+                                aria-controls="dropdown-menu"
+                                @click="toggle_show_menu()">
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" v-if="is_show_menu" role="menu">
+                        <div class="dropdown-content">
+                            <a class="dropdown-item"
+                               @click="goto('search_descript')">
+                                Similar Descriptions
+                            </a>
+                            <a class="dropdown-item"
+                               @click="goto('search')">
+                                Similar Movies
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p v-if="no_results" class="has-text-danger">Found nothing, sorry</p>
+    </section>
+
+    <section class="section" v-if="page=='search'">
+        <div class="field has-addons">
+            <div class="control is-expanded">
+                <input type="text"
+                       v-model="user_movie"
+                       placeholder="Movies like this"
+                       @keyup.enter="fetch_rec"
+                       class="input"
+                       @input="reset_errors">
+            </div>
+            <div class="control">
+                <button v-if="is_loading"
+                        class="button is-warning is-light is-loading"
+                        type="submit"
+                        @click="fetch_rec">
+                    <i class="fa fa-fw fa-search"></i> Similar Movies
+                </button>
+                <button v-else
+                        class="button is-warning is-light"
+                        type="submit"
+                        @click="fetch_rec">
+                    <i class="fa fa-fw fa-search"></i> Similar Movies
+                </button>
+            </div>
+            <div class="control">
+                <div class="dropdown is-right is-active">
+                    <div class="dropdown-trigger">
+                        <button class="button is-warning"
+                                aria-haspopup="true"
+                                aria-controls="dropdown-menu"
+                                @click="toggle_show_menu()">
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" v-if="is_show_menu" role="menu">
+                        <div class="dropdown-content">
+                            <a class="dropdown-item"
+                                    @click="goto('search_descript')">
+                                Similar Descriptions
+                            </a>
+                            <a class="dropdown-item"
+                               @click="goto('search_title')">
+                                Search Title
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p v-if="no_results" class="has-text-danger">Found nothing, sorry</p>
+    </section>
+
+    <section class="section" v-if="page=='search_descript'">
+        <div>
+            <textarea class="textarea is-fullwidth"
+                      v-model="user_descript"
+                      placeholder="Describe a movie you would like to watch."
+                      @keyup.enter="fetch_descript_rec"
+                      @input="reset_errors_descript"></textarea>
+        </div>
+        <div class="field has-addons is-pulled-right">
+            <div class="control">
+                <button v-if="is_loading"
+                        class="button is-warning is-light is-loading"
+                        type="submit"
+                        @click="fetch_descript_rec">
+                    <i class="fa fa-fw fa-search"></i> Similar Descriptions
+                </button>
+                <button v-else
+                        class="button is-warning is-light"
+                        type="submit"
+                        @click="fetch_descript_rec">
+                    <i class="fa fa-fw fa-search"></i> Similar Descriptions
+                </button>
+            </div>
+            <div class="control">
+                <div class="dropdown is-right is-active">
+                    <div class="dropdown-trigger">
+                        <button class="button is-warning"
+                                aria-haspopup="true"
+                                aria-controls="dropdown-menu"
+                                @click="toggle_show_menu()">
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" v-if="is_show_menu" role="menu">
+                        <div class="dropdown-content">
+                            <a class="dropdown-item"
+                               @click="goto('search')">
+                                Similar Movies
+                            </a>
+                            <a class="dropdown-item"
+                               @click="goto('search_title')">
+                                Search Title
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p v-if="no_results_descript" class="has-text-danger">Found nothing, sorry</p>
+    </section>
+
+    <section class="section" v-if="page=='list'">
+        <h1 class="title">More like {{user_movie}}: </h1>
+        <table class="table is-striped is-fullwidth">
+            <tr>
+                <th>Title</th>
+                <th>Your Rating</th>
+                <th>Add to Favorites</th>
+            </tr>
+            <tr v-for="r in rows">
+                <td>
+                    <a target="_blank" :href='cine_link(r.movie_id)'>{{ r.title }}</a>
+                </td>
+                <td @mouseout="stars_out(r._idx)">
+                    <span v-for="star_idx in [1, 2, 3, 4, 5]"
+                          @click="set_rating(r._idx, star_idx)"
+                          @mouseover="stars_over(r._idx, star_idx)">
+                        <a v-if="star_idx <= r.num_stars_display">&#127916</a>
+                        <a v-if="star_idx > r.num_stars_display">&#127813</a>
+                    </span>
+                </td>
+                <td>
+                    <div style="position:relative; left:55px;">
+                        <a v-if="r.is_favorite==1" @click="unfavorite(r._idx)">&#127871</a>
+                        <a v-else @click="favorite(r._idx)">&#127805</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <button class="button is-warning is-light" type="button" @click="go_last_page()">
+            <i class="fa fa-fw fa-backward"></i> Continue Searching
+        </button>
+    </section>
+</div>
+
+[[block page_scripts]]
+<script>
+    let load_rec_url = "[[=XML(load_rec_url)]]";
+    let find_title_url = "[[=XML(find_title_url)]]";
+    let load_rec_descript_url = "[[=XML(load_rec_descript_url)]]";
+    let set_rating_url = "[[=XML(set_rating_url)]]";
+    let set_favorite_url = "[[=XML(set_favorite_url)]]";
+</script>
+<script src="js/search.js"></script>
+[[end]]

@@ -1,0 +1,102 @@
+[[extend 'layout.html']]
+
+<div id="vue-target">
+    <div class="box">
+    <section class="section">
+        <h1 class="title">
+            {{movie_title}} &nbsp
+            <a v-if="is_favorite" @click="unfavorite">&#127871</a>
+            <a v-else @click="favorite">&#127805</a>
+            <br/>
+            <br/>
+            {{clapper_count}} &#127916
+        </h1>
+        <a target="_blank" :href='netflix_link(movie_title)' class="button is-danger">Netflix</a>
+        <a target="_blank" :href='amazon_link(movie_title)' class="button is-warning">
+            <i class="fab fa-amazon"></i>
+        </a>
+        <a target="_blank" :href='google_link(movie_title)' class="button is-link">
+            <i class="fab fa-google"></i>
+        </a>
+        <br/>
+        <br/>
+        <div class="box notification is-light">
+            <p>
+                {{description}}
+            </p>
+        </div>
+    </section>
+    </div>
+
+    <div class="box">
+        <div class="section">
+            <h1 class="title">Reviews</h1>
+            <div class="is-fullwidth" v-if="mode=='show_textarea'">
+                <div class="field">
+                    <textarea class="textarea is-fullwidth"
+                              v-model="new_review_text"
+                              @input="clear_error_flags"
+                              placeholder="Enter new review here"></textarea>
+                </div>
+                <div @mouseout="stars_out">
+                    <span v-for="star_idx in [1, 2, 3, 4, 5]"
+                          @click="set_rating(star_idx)"
+                          @mouseover="stars_over(star_idx)">
+                        <a v-if="star_idx <= num_stars_display">&#127916</a>
+                        <a v-if="star_idx > num_stars_display">&#127813</a>
+                    </span>
+                </div>
+                <br/>
+                <button class="button is-primary is-size-6" @click="add_review()">Send Review</button>
+                <button @click="change_mode('no_textarea')" class="button is-warning is-size-6">Cancel</button>
+                <p v-if="is_only_review_text_empty" class="is-danger">Please enter a review.</p>
+                <p v-if="is_only_rating_empty" class="is-danger">Please enter a rating.</p>
+                <p v-if="is_review_text_and_rating_empty" class="is-danger">Please enter a review and a rating.</p>
+            </div>
+            <div v-if="mode=='no_textarea'" >
+                <button @click="change_mode('show_textarea')" class="button is-primary is-size-6">
+                    <i class="fa fa-plus fa-fw"></i>
+                </button>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="tile is-ancestor" v-for="r in reviews">
+                <div class="tile is-vertical">
+                    <!-- This div contains each review -->
+                    <div class="tile is-child notification is-light">
+                        <div class="level">
+                            <div class="level-left">
+                                <p>{{r.text}}</p>
+                            </div>
+                            <div class="level-right">
+                                <a class="button is-danger is-pulled-right" @click="delete_review(r.review_id)" v-if="r.is_owner=='1'">
+                                    <i  class="fa fa-trash fa-fw"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <p class="has-text-grey is-italic">Review by {{r.author}}</p>
+                        <span v-for="star_idx in [1, 2, 3, 4, 5]">
+                                <i v-if="star_idx <= r.rating">&#127916</i>
+                                <i v-if="star_idx > r.rating">&#127813</i>
+                        </span>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+[[block page_scripts]]
+<script>
+    let _movie_id = [[=movie_id]];
+    let add_review_url = "[[=XML(add_review_url)]]";
+    let get_reviews_url = "[[=XML(get_reviews_url)]]";
+    let delete_review_url = "[[=XML(delete_review_url)]]";
+    let movie_info_url = "[[=XML(movie_info_url)]]";
+    let set_favorite_url = "[[=XML(set_favorite_url)]]";
+    let set_rating_url = "[[=XML(set_rating_url)]]";
+</script>
+<script src="js/movie_info_page.js"></script>
+[[end]]

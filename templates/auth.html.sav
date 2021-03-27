@@ -1,0 +1,42 @@
+[[extend "layout.html"]]
+<link rel="stylesheet" href="css/login.css"/>
+<!-- <link rel="stylesheet" href="css/animate.css"/>-->
+ <link rel="stylesheet" href="css/general.css">
+<div id="section_count" class="hero is-fullheight video animated fadeOut">
+    <div class="hero-video">
+        <video poster="images/countdown_moment.jpg" playsinline autoplay muted>
+            <source src="[[=URL('static', 'countdown.mp4')]]" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+
+<section class="section">
+    <div class="container">
+        <p class="level-item has-text-centered">
+            <img src="[[=URL('static', 'cinefinal2.png')]]" alt="" style="height: 250px;" >
+        </p>
+    </div>
+</section>
+
+<div id="vue">
+  <div class="columns">
+    <div class="column is-half is-offset-one-quarter" style="border : 1px solid #e1e1e1; border-radius: 10px">
+      <auth plugins="local,oauth2google,oauth2facebook"></auth>
+    </div>
+  </div>
+</div>
+[[block page_scripts]]
+<script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+<script src="js/utils.js"></script>
+<script src="components/auth.js"></script>
+<script>utils.app().start();</script>
+<script>
+  $('#section_count').fadeOut(9000, function() {
+      $('#section_count').remove();
+       });
+  $('#vue').fadeIn(10000, function() {
+
+  });
+</script>
+[[end]]

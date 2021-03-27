@@ -1,0 +1,98 @@
+[[extend 'layout.html']]
+
+<body>
+  <div id="app" name="myProfile">
+    <div class="container">
+      <section class="section">
+        <div class="title">Set up your profile</div>
+
+        <div class="field">
+          <label class="label">Choose a profile picture</label>
+          <div class="control">
+            <input type="file" ref="photo" @change="handleFileUpload" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Describe yourself</label>
+          <div class="control">
+            <textarea
+              class="textarea"
+              placeholder="Your bio"
+              v-model="bio"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Pick a favorite movie</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="favMovie">
+                <option>Toy Story</option>
+                <option>The Avengers</option>
+                <option>Night of the Living Dead</option>
+                <option>The Wizard of Oz</option>
+                <option>The Scarlet Letter</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field is-grouped">
+          <div class="control">
+            <button class="button is-info" @click="createUserProfile()">
+              Save
+            </button>
+          </div>
+          <div class="control">
+            <button class="button is-light" @click="goBack()">Cancel</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+
+[[block page_scripts]]
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        photo: null,
+        bio: "",
+        favMovie: ""
+      };
+    },
+    methods: {
+      handleFileUpload(event) {
+        this.photo = this.$refs.photo.files[0];
+      },
+      createUserProfile: function() {
+        let formData = new FormData();
+        formData.append("_formname", "myProfile");
+        formData.append("photo", this.photo);
+        formData.append("bio", this.bio);
+        formData.append("favMovie", this.favMovie);
+
+        axios.post("../save_profile", formData).then(
+          function(result) {
+            console.log(result);
+            window.location = "../index";
+          },
+          function(error) {
+            console.log("error");
+          }
+        );
+        for (var pair of formData.entries()) {
+          console.log(pair[0] + ", " + pair[1]);
+        }
+      },
+      goBack: function() {
+        window.location = "../index";
+      }
+    }
+  });
+</script>
+[[end]]

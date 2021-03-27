@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base href="[[=URL('static')]]/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAA=="/>
+    <link rel="stylesheet" href="css/bulma.css">
+    <link rel="stylesheet" href="css/animate.css">
+      <style>
+          body{
+                background-color: #fffffc;
+                background-image: linear-gradient(315deg, #fffffc 0%, #beb7a4 74%);
+                opacity: 1;
+                transition: 0.7s opacity;
+            }
+          body.fade {
+                opacity: 0;
+                transition: none;
+            }
+          .goldbutton{
+               background: rgb(223, 117, 20) !important;
+          }
+          #oscar{
+              padding: 0em;
+              max-height: 25%;
+              max-width: 25%;
+          }
+          #clap{
+               padding: 0em;
+              max-height: 50%;
+              max-width: 50%;
+          }
+      </style>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    [[block page_head]]<!-- individual pages can customize header here -->[[end]]
+  </head>
+  <body>    
+    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href=".">
+          <figure class="image is-32x32">
+            <img class="is-rounded" src="[[=URL('static', 'cinefinal2.png')]]">
+          </figure>
+        </a>
+          <a class="navbar-item" href="[[=URL('search')]]"> Find Movies</a>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="left-navbar"
+           onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="left-navbar" class="navbar-menu">
+        <div class="navbar-start">       
+          <a class="navbar-item" href="[[=URL('index')]]">Home</a>
+          [[block page_menu_items]]
+            <!-- individual pages can add menu items here -->
+            [[end]]
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              [[if globals().get('user'):]]
+              <a class="button is-primary" href="[[=URL('auth/logout')]]">Sign out</a>
+              [[else:]]
+              <a class="button is-primary goldbutton" href="[[=URL('auth/register')]]">Sign up</a>
+              <a class="button is-light" href="[[=URL('auth/login')]]">Sign in</a>
+              [[pass]]
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <section class="section">
+      <!-- beginning of HTML inserted by extending template -->
+      [[include]]
+      <!-- end of HTML inserted by extending template -->
+    </section>
+  </body>
+  <script src="js/sugar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/vue.js"></script>
+  [[block page_scripts]]<!-- individual pages can add scripts here -->[[end]]
+</html>
