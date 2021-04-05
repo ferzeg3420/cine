@@ -87,7 +87,7 @@
         formData.append("bio", this.bio);
         formData.append("favMovie", this.favMovie);
         axios
-          .post("../api/update_profile", formData, {
+          .post("../update_profile", formData, {
             headers: { "Content-Type": "multipart/form-data" }
           })
           .then(

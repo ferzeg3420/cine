@@ -1,6 +1,10 @@
 [[extend 'layout.html']]
 
 <section id="vue-target">
+    <chat ticket_url="[[=XML(generate_ticket_url)]]"
+          messages_url="[[=XML(load_messages_url)]]"
+          contacts_url="[[=XML(load_contacts_url)]]">
+    </chat>
     <div class="columns">
         <!-- left column -->
         <div class="column is-one-quarter">
@@ -8,29 +12,35 @@
                 <div class="tile is-vertical is-parent">
                     <div class="tile is-child box">
                         [[if len(info) == 0:]]
-                        <img src="[[=URL('static', 'images/defprofilepic.jpg')]]" />
-                        [[else:]] [[for row in info:]] [[if row.photo is None:]]
-                        <img src="[[=URL('static', 'images/defprofilepic.jpg')]]" />
+                            <a href="[[=URL('create_profile')]]">
+                                <img src="[[=URL('static', 'images/defprofilepic.jpg')]]" />
+                            </a>
+                            <h1 class="title">[[=name]]</h1>
+                            <a class="button is-primary goldbutton" 
+                               href="[[= URL('create_profile')]]">
+                                <i class="fas fa-cog"></i>&nbsp; Edit Profile
+                            </a>
                         [[else:]]
-                        <img src="[[=URL('static', 'photos', row.photo)]]" />
-                        [[pass]] [[pass]] [[pass]]
-                        <h1 class="title">[[=name]]</h1>
-                        [[if len(info) == 0:]]
-                        <a class="button is-primary goldbutton" href="[[= URL('create_profile')]]">
-                            Create Profile
-                        </a>
-                        [[else:]] [[for row in info:]]
-                        <p>
-                            [[=row.bio]]
-                        </p>
-                        <br/>
-                        <a class="button is-primary goldbutton" href="[[=URL('edit_profile', row.id)]]">
-                            <i class="fas fa-user-edit"></i> &nbsp; Edit Profile
-<!--                        <a class="button is-primary" href="[[=URL('edit_profile', row.id)]]">
-                            <i class="fas fa-user-edit"></i> &nbsp; Edit Profile
--->
-                        </a>
-                        [[pass]] [[pass]]
+                            [[for row in info:]]
+                                <a href="[[=URL('edit_profile')]]">
+                                [[if row.photo is None:]]
+                                    <img src="[[=URL('static', 'images/defprofilepic.jpg')]]" />
+                                [[else:]]
+                                    <img src="[[=URL('static', 'photos', row.photo)]]" />
+                                [[pass]] 
+                                </a>
+                                <h1 class="title">[[=name]]</h1>
+                                <p>
+                                    [[=row.bio]]
+                                </p>
+                                </br>
+                                <a class="button is-primary goldbutton"
+                                   href="[[=URL('edit_profile')]]">
+                                    <i class="fas fa-user-edit"></i>
+                                    &nbsp; Edit Profile
+                                </a>
+                            [[pass]] 
+                        [[pass]]
                     </div>
                     <div class="tile is-child box">
                         <table class="table is-fullwidth">
@@ -106,22 +116,21 @@
             </div>
             <div class="box is-primary">
                 <div class="box is-shadowless">
-                    <p style = "position:relative; top:-12px;"
-                            class="level-item
-                            has-text-black
-                            has-text-weight-bold
-                            has-text-centered">
+                    <p class="level-item
+                              has-text-black
+                              has-text-weight-bold
+                              has-text-centered">
                         Your Reviews
                     </p>
                 </div>
                 <div v-if="is_no_reviews"
                      class="tile notification has-text-centered"
-                     style="position:relative; top:-45px;">
+                     style = "position:relative; top:-35px;">
                     <p class="is-italic has-text-centered">No reviews yet.</p>
                 </div>
-                <div style = "position:relative; top:-45px;"
+                <div style = "position:relative; top:-35px;"
                         class="tile is-ancestor is-fullwidth"
-                        v-for="rw in reviews">
+                        v-for="rw in reviews"> 
                     <div class="tile is-vertical is-parent">
                         <!-- This div contains each review -->
                         <div class="tile is-child notification has-background-white-bis">
@@ -214,15 +223,14 @@
                                     {{ fr.name }}
                                 </td>
                                 <td></td>
+                                <!--
                                 <td>
+
                                     <span class="has-text-link is-pulled-right" @click="showModal=true;showModalFor=fr.id" style="cursor:pointer">
                                         <i class="fa fa-envelope-open is-pulled-right" aria-hidden="true"></i>
                                     </span>
-                                    <my-modal v-show="showModal" v-if="showModalFor==fr.id" @close="showModal=false">
-                                        <chatbox :sender="fr.curr_user" :receiver="fr.name" :receiver_id="fr.id">
-                                        </chatbox>
-                                    </my-modal>
                                 </td>
+                                -->
                             </tr>
                         </table>
                         <a v-if="is_show_more_friends_opt"
@@ -266,5 +274,6 @@
     let save_msg_url= "[[=XML(save_msg_url)]]";
     let fetch_msg_url= "[[=XML(fetch_msg_url)]]";
 </script>
+<script src="js/components/vue-chat.js"></script>
 <script src="js/index.js"></script>
 [[end]]

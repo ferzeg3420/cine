@@ -28,6 +28,7 @@ from . rec_engine import *
 import datetime
 from random import shuffle
 import os
+import json
 from random import randrange
 import uuid
 
@@ -43,6 +44,8 @@ from . models import get_user
 url_signer = URLSigner(session)
 
 size_of_the_database = 1000
+
+users = {}
 
 #---------------------------------  ---------------  ---------- Helpers
 
@@ -223,6 +226,9 @@ def index():
         fetch_msg_url=URL('fetch_msg', signer=url_signer),
         name=get_name(auth.current_user.get('email')),
         info=db(db.profiles.user_email == auth.current_user.get('email')).select(),
+        generate_ticket_url=URL('generate_ticket'), #new
+        load_contacts_url=URL('get_contacts'), #new
+        load_messages_url=URL('load_messages'), #new
     )
 
 #returns movies the user hasn't liked or favorited
@@ -506,31 +512,52 @@ def set_favorite():
 	
 #---------------------------------  ---------------  ---------- User Profile
 
-@action('create_profile')
-@action.uses('profile_form.html')
+@action('create_profile', method=['GET', 'POST'])
+@action.uses('profile_form.html', db, session)
 def create_profile():
-    return dict()
-
-@action('save_profile', method=['GET', 'POST'])
-@action.uses(auth.user, db, session)
-def save_profile():
-    form = Form(db.profiles, form_name='myProfile')
-    p = db.profiles[form.vars['id']]
-    profile_id = p.update_record(user_email=auth.current_user.get('email'))
-    return dict(profile_id=profile_id)
-	
-@action('edit_profile/<profile_id>', method=['GET', 'POST'])
-@action.uses('edit_profile_form.html', auth.user, db, session)
-def edit_profile(profile_id=None):
-    p = db.profiles[profile_id]
-    if(p is None):
-        redirect(URL('index'))
-    elif p.user_email != auth.current_user['email']:
+    form = Form(
+                [
+                  Field('Photo', 'upload'),
+                  Field('Bio', 'text'),
+                  Field('Favorite_Movie', 'text'),
+                ],
+                form_name='Edit Profile',
+                formstyle=FormStyleBulma
+            )
+    if form.accepted:
+        db.profiles.update_or_insert(
+            (db.profiles.user_email == auth.current_user.get('email')),
+            user_email=auth.current_user.get('email'),
+            photo=form.vars.get('Photo'),
+            bio=form.vars.get('Bio'),
+            favMovie=form.vars.get('Bio')
+        )
         redirect(URL('index')) 
-    bio = p.bio
-    favMovie = p.favMovie
-    img = p.photo
-    return dict(profile_id=profile_id, formBio=bio, formMovie=favMovie, formImg=img)
+    return dict(form=form)
+	
+@action('edit_profile', method=['GET', 'POST'])
+@action.uses('edit_profile_form.html', auth.user, db, session)
+def edit_profile():
+    form = Form(
+                [
+                  Field('Photo', 'upload'),
+                  Field('Bio', 'text'),
+                  Field('Favorite_Movie', 'text'),
+                ],
+                form_name='Edit Profile',
+                formstyle=FormStyleBulma
+            )
+    if form.accepted:
+        db.profiles.update_or_insert(
+            (db.profiles.user_email == auth.current_user.get('email')),
+            user_email=auth.current_user.get('email'),
+            photo=form.vars.get('Photo'),
+            bio=form.vars.get('Bio'),
+            favMovie=form.vars.get('Bio')
+        )
+        redirect(URL('index')) 
+    return dict(form=form)
+#    return dict(profile_id=profile_id, formBio=bio, formMovie=favMovie, formImg=img)
 
 @action('update_profile', method=['GET', 'POST'])
 @action.uses(auth.user, db, session)
@@ -542,19 +569,6 @@ def update_profile():
     profile_id = p.update_record(photo=form.vars['photo'], bio=form.vars['bio'], favMovie=form.vars['favMovie'])
     return dict(profile_id=profile_id)
 	
-@action('edit_profile/<profile_id>', method=['GET', 'POST'])
-@action.uses('edit_profile_form.html', db, session, auth.user)
-def edit_profile(profile_id=None):
-    p = db.profiles[profile_id]
-    if(p is None):
-        redirect(URL('index'))
-    elif p.user_email != auth.current_user['email']:
-        redirect(URL('index')) 
-    bio = p.bio
-    favMovie = p.favMovie
-    img = p.photo
-    return dict(profile_id=profile_id, formBio=bio, formMovie=favMovie, formImg=img)
-
 #---------------------------------  ---------------  ---------- Friend Request
 @action('add_friend', method="POST")
 @action.uses(url_signer.verify(), db, auth.user)
@@ -568,7 +582,7 @@ def add_friend():
 @action('accept_friend', method="POST")
 @action.uses(url_signer.verify(), db, auth.user)
 def accept_friend():
-    #print("in accept friend")
+    print("---> in accept friend")
     user_requested = auth.current_user.get('id')
     requester = request.json.get('requester')
     friendship_entry = db((db.friends.requester == requester) &
@@ -582,37 +596,42 @@ def accept_friend():
             ((db.friends.requester == user_requested) & (db.friends.user_requested == requester)),
             status=4
         )
+        if user_requested < int(requester): #fer
+            print("---> inserting in db a:", user_requested)
+            print("---> inserting in db b:", requester)
+            db.conversation.update_or_insert(
+                interlocutor_a=user_requested,
+                interlocutor_b=int(requester),
+            )
+        else:
+            print("---> inserting in db a:", user_requested)
+            print("---> inserting in db b:", requester)
+            db.conversation.update_or_insert(
+                interlocutor_a=int(requester),
+                interlocutor_b=user_requested,
+            )
+        db.contacts.update_or_insert(
+            friend_a=user_requested,
+            friend_b=requester,
+        ) # now
+        db.contacts.update_or_insert(
+            friend_a=requester,
+            friend_b=user_requested,
+        ) # now
     else:
         is_friendship = 0
     return is_friendship
 
 #---------------------------------  ---------------  ---------- User Profile
-@action('create_profile')
-@action.uses('profile_form.html')
-def create_profile():
-    return dict()
 
-@action('save_profile', method=['GET', 'POST'])
-@action.uses(auth.user, db, session)
-def save_profile():
-    form = Form(db.profiles, form_name='myProfile')
-    p = db.profiles[form.vars['id']]
-    profile_id = p.update_record(user_email=auth.current_user.get('email'))
-    return dict(profile_id=profile_id)
+#@action('save_profile', method=['GET', 'POST'])
+#@action.uses(auth.user, db, session)
+#def save_profile():
+#    form = Form(db.profiles, form_name='myProfile')
+#    p = db.profiles[form.vars['id']]
+#    profile_id = p.update_record(user_email=auth.current_user.get('email'))
+#    return dict(profile_id=profile_id)
 	
-@action('edit_profile/<profile_id>', method=['GET', 'POST'])
-@action.uses('edit_profile_form.html', auth.user, db, session)
-def edit_profile(profile_id=None):
-    p = db.profiles[profile_id]
-    if(p is None):
-        redirect(URL('index'))
-    elif p.user_email != auth.current_user['email']:
-        redirect(URL('index')) 
-    bio = p.bio
-    favMovie = p.favMovie
-    img = p.photo
-    return dict(profile_id=profile_id, formBio=bio, formMovie=favMovie, formImg=img)
-
 @action('update_profile', method=['GET', 'POST'])
 @action.uses(auth.user, db, session)
 def update_profile():
@@ -644,3 +663,162 @@ def fetch_msg():
              (db.messages.receiver == sender))).select(orderby=db.messages.ts):
                     msgs.append({ 'sender': msg.sender, 'receiver': msg.receiver, 'content': msg.content, 'timestamp': msg.ts }) 
     return dict(msgs=msgs)
+
+# ------------------------------------- ------------ ------ Chat box
+
+@action("load_messages/<contact_id>")
+@action.uses(auth.user, db)
+def load_messages(contact_id):
+    print("messages")
+    user = auth.get_user() or redirect(URL('auth/login'))
+    user_id = user['id']
+    if int(contact_id) < user_id:
+        interlocutor_1 = int(contact_id)
+        interlocutor_2 = user_id
+    else:
+        interlocutor_1 = user_id
+        interlocutor_2 = int(contact_id)
+    convo_row = \
+        db((db.conversation.interlocutor_a == interlocutor_1)\
+         & (db.conversation.interlocutor_b == interlocutor_2))\
+            .select(db.conversation.id)\
+            .first()
+    if convo_row == None:
+        return dict(messages=[])
+    if convo_row.id == None:
+        return dict(messages=[])
+    messages = db(db.message.convo == convo_row.id)\
+               .select(db.message.ALL, orderby=db.message.ts)\
+               .as_list()
+    return dict(messages=messages)
+
+@action("generate_ticket")
+@action.uses(auth.user, db)
+def generate_ticket():
+    print("---> tickets")
+    user = auth.get_user() or redirect(URL('auth/login'))
+    ticket = {
+        "client_ip": request.environ.get('REMOTE_ADDR'),
+        "user_id": str(user['id']),
+        "ts": str(datetime.datetime.utcnow()),
+    }
+    ticket_id = db.tickets.insert(
+        ip=ticket['client_ip'],
+        user_id=ticket['user_id'],
+        ts=ticket['ts'],
+        claimed=False
+    )
+    return dict(ticket=ticket, ticket_id=ticket_id)
+
+@action("get_contacts")
+@action.uses(auth.user, db)
+def get_contacts():
+    print("---> contacts")
+    user = auth.get_user() or redirect(URL('auth/login'))
+    user_id = user['id']
+    contacts = []
+    rows = \
+        db(db.contacts.friend_a == user_id).select().as_list()
+    for contact_pair in rows:
+        friend_b = db.auth_user[contact_pair.get('friend_b')]
+        friend_id = contact_pair.get('friend_b')
+        name = "{} {}".format(friend_b.get('first_name'), friend_b.get('last_name'))
+        contacts.append({"name": name, "id": friend_id})
+    print("---> contacts:", contacts)
+    return dict(contacts=contacts)
+
+@action('chatsocket')
+@action.uses(db) 
+def chat():
+    print("---> chat socket")
+    # Validate the websocket ticket
+    ws = request.environ.get('wsgi.websocket')
+    ticket_payload_serialized = ws.receive()
+    if ticket_payload_serialized == None:
+        return
+    ticket_payload = json.loads(ticket_payload_serialized) 
+    ticket = ticket_payload.get('content')
+    ticket_id = ticket_payload.get('ticket_id')
+    type("timestamp: {}".format(ticket['ts']))
+    row = db.tickets[ticket_id]
+    if row == None:
+        return
+    if row.get('ip') != ticket.get('client_ip'):
+        return
+    if row.get('user_id') != ticket.get('user_id'):
+        return
+    if row.get('ts') != ticket.get('ts'):
+        return
+    if row.get('claimed') == True:
+        return
+
+    db.tickets[ticket_id] = dict(claimed=True)
+    # Register the websocket along with a corresponding user id
+    user_id = int(ticket['user_id'])
+    users[user_id] = ws
+
+    # Looping so that this socket is useful
+    while True:
+        #Recieve the payload from the client, which would be a message
+        payload = ws.receive()
+        if payload is not None:
+            decoded_payload = json.loads(payload)
+            msg = decoded_payload['content']
+            recipient_id = decoded_payload['recipient_id']
+            if msg == None:
+                break
+            if recipient_id == None:
+                break
+            if int(recipient_id) == user_id:
+                break
+
+            # check if recipient exists and is not user sending to self
+            rows = db(db.auth_user.id == recipient_id).select()
+            recipient_user = rows.first()
+            if recipient_user == None:
+                break
+                
+            # Setting these so the ids are unique in the convo DB
+            if int(recipient_id) < user_id:
+                interlocutor_1 = int(recipient_id)
+                interlocutor_2 = user_id
+            else:
+                interlocutor_1 = user_id
+                interlocutor_2 = int(recipient_id)
+            # Updating in case the convo doesn't exist already
+            convo_id = db.conversation.update_or_insert(
+                ((db.conversation.interlocutor_a == interlocutor_1) &\
+                 (db.conversation.interlocutor_b == interlocutor_2)),
+                interlocutor_a=interlocutor_1,
+                interlocutor_b=interlocutor_2,
+            )
+            # The other way of doing this isn't working for some reason
+            rows1 = db((db.conversation.interlocutor_a == interlocutor_1) & (db.conversation.interlocutor_b == interlocutor_2)).select()
+            convo_id = rows1.first().id
+
+            # Save the message in the DB
+            message_id = db.message.insert(
+                convo=convo_id,
+                content=msg,
+                recipient_id=int(recipient_id),
+            )
+
+            # Create the payload for the client
+            message_2_send = db.message[message_id]
+            out_payload = json.dumps(
+                {
+                    'recipient_id': int(recipient_id),
+                    'message': msg,
+                    'ts': message_2_send.ts.isoformat()
+                }
+            )
+            
+            # Send the payload to the logged in interlocutors
+            if users.get(interlocutor_1) != None: 
+                users.get(interlocutor_1).send(out_payload)
+            if users.get(interlocutor_2) != None: 
+                users.get(interlocutor_2).send(out_payload)
+        else:
+            break
+    # No payload or some exit condition
+    users[user_id] = None

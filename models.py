@@ -89,6 +89,36 @@ db.define_table(
     Field('ts', 'datetime', default=get_time),
 )
 
+# Fernando added these
+
+db.define_table(
+    'contacts',
+    Field('friend_a', 'reference auth_user'),
+    Field('friend_b', 'reference auth_user'),
+)
+
+db.define_table(
+    'conversation',
+    Field('interlocutor_a', 'reference auth_user'),
+    Field('interlocutor_b', 'reference auth_user'),
+)
+
+db.define_table(
+    'message',
+    Field('convo', 'reference conversation'), 
+    Field('content', 'text'), 
+    Field('recipient_id', 'reference auth_user'), 
+    Field('ts', 'datetime', default=get_time), 
+)
+
+db.define_table(
+    'tickets',
+    Field('ip', 'text'), 
+    Field('user_id', 'text'), 
+    Field('ts', 'text'), 
+    Field('claimed', 'boolean', default=False), 
+)
+
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'pydal_movies.csv')
 
