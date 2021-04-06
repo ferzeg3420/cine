@@ -1,5 +1,5 @@
 Vue.component('chat', {
-    props: ['ticket_url', 'contacts_url', 'messages_url'],
+    props: ['ticket_url', 'contacts_url', 'messages_url', 'chatsocket_url'],
     data: function () {
         return {
            is_open: false,
@@ -46,11 +46,12 @@ Vue.component('chat', {
             this.close_contacts();
             this.load_chat(_contact_id);
             let generate_ticket_url = this.ticket_url;
+            let socket_url = this.chatsocket_url;
             axios.get(generate_ticket_url)
                  .then( (res) => {
                          this.client_ticket = res.data.ticket;
                          this.client_ticket_id = res.data.ticket_id;
-                         this.ws = new WebSocket('ws://127.0.0.1:8000/cine/chatsocket');
+                         this.ws = new WebSocket(socket_url);
                          this.ws.onopen = this.onopen_handler;
                          this.ws.onmessage = this.onmessage_handler;
                      }

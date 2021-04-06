@@ -211,7 +211,11 @@ def get_trailer():
 @action('index')
 @action.uses('index.html', auth.user, db, session)
 def index():
+    chat_socket_url = \
+        "ws://" + request.environ.get('HTTP_HOST') + URL('chatsocket')
+
     return dict(
+        chatsocket_url=chat_socket_url,
         load_rec_url=URL('load_rec', signer=url_signer),
         load_rand_rec_url=URL('load_rand_rec', signer=url_signer),
         load_fav_url=URL('load_favs', signer=url_signer),
