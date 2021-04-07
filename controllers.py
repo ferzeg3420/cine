@@ -736,6 +736,7 @@ def get_contacts():
 def chat():
     print("---> chat socket")
     # Validate the websocket ticket
+    print("---> request environ:", request.environ)
     ws = request.environ.get('wsgi.websocket')
     ticket_payload_serialized = ws.receive()
     if ticket_payload_serialized == None:
