@@ -234,7 +234,7 @@ def get_trailer():
 @action.uses('index.html', auth.user, db, session)
 def index():
     chat_socket_url = \
-        "ws://" + request.environ.get('HTTP_HOST') + URL('chatsocket')
+        "wss://" + request.environ.get('HTTP_HOST') + URL('chatsocket')
 
     return dict(
         chatsocket_url=chat_socket_url,
