@@ -350,6 +350,42 @@ body.fade {
 #occ {
 }
 
+#ca {
+    background: lightgrey;
+    border-radius: 6px;
+}
+
+#cb {
+    background: lightblue;
+    border-radius: 6px;
+}
+
+#cc {
+    background: lightgreen;
+    border-radius: 6px;
+}
+
+#cd {
+    background: lightgreen;
+    border-radius: 6px;
+}
+
+#ce {
+    background: lightgreen;
+    border-radius: 6px;
+}
+
+#cf {
+    background: lightblue;
+    border-radius: 6px;
+}
+
+.handle-div {
+    padding-left: 5px;
+    width: 100%;
+    cursor: grab;
+}
+
 .animated-clapper {
     height: 2rem;
     width: auto;
