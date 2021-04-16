@@ -119,6 +119,12 @@ db.define_table(
     Field('claimed', 'boolean', default=False), 
 )
 
+db.define_table(
+    'div_order',
+    Field('user', 'reference auth_user'),
+    Field('data', 'list:string', default=[]),
+)
+
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'pydal_movies.csv')
 

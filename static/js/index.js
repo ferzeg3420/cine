@@ -2,6 +2,9 @@ let app = {};
 
 let init = (app) => {
     app.data = {
+        socketHitboxes: [],
+        outerHitboxes: [],
+
         page: "",
         favorites: [],
         rec_movies: [],
@@ -33,137 +36,6 @@ let init = (app) => {
         showModalFor: 0
     };
   
-    Vue.component("my-modal", {
-    template: `
-        <div class="modal is-active">
-            <div class="modal-background">
-            </div>
-            <div class="modal-content">
-                <div class="box">
-                    <slot></slot>
-                </div>
-            </div>
-            <button class="modal-close" @click="$emit('close')">
-            </button>
-        </div>
-    `
-    });
-  
-    Vue.component("chatbox", {
-    props: {
-      sender: Number,
-      receiver: String,
-      receiver_id: Number
-    },
-    template: `          
-      <div>
-        <h1 class="title">{{ receiver }}</h1> 
-        </textarea>
-        <div class="box" :message="messages">
-          <p class="has-text-right has-text-link is-size-6" v-if="sender==messages[0].sender && messages.content!==undefined">
-            {{messages[0].content}}
-          </p>
-          <p class="has-text-left has-text-grey-dark is-size-6" v-else-if="sender!=messages[0].sender && messages.content!==undefined">
-            {{messages[0].content}}
-          </p>
-          <p class="has-text-right has-text-link is-size-6" v-if="sender!=messages[0].sender && messages.content!==undefined">
-            {{messages[1].content}}
-          </p>
-        </div> 
-        <span>
-            <textarea class="textarea" rows="1" placeholder="Type a message..." v-model="messages.content" v-if="clear">
-            </textarea>
-            <br>
-            <button class="button is-info" @click="save_msg(receiver_id)">
-                <span>Send</span>
-                <span class="icon is-small">
-                    <i class="far fa-paper-plane"></i>
-                </span>
-            </button>
-        </span>
-      </div>
-    `,
-    data: function() {
-      return {
-        clear: true,
-        messages: [
-          {
-            content: "",
-            sender: "",
-            receiver: "",
-            timestamp: ""
-          }
-        ]
-      };
-    },
-    created() {
-      setInterval(this.getNow, 1000);
-    },
-    methods: {
-      save_msg: function(receiver_id) {
-        this.messages.receiver = receiver_id;
-        this.messages.sender = this.sender;
-        setInterval(() => {
-          this.getNow();
-        }, 1000);
-        this.messages.push({
-          sender: this.messages.sender,
-          receiver: this.messages.receiver,
-          content: this.messages.content,
-          timestamp: this.messages.timestamp
-        });
-        axios.post(save_msg_url, {
-          sender: this.messages.sender,
-          receiver: this.messages.receiver,
-          content: this.messages.content,
-          timestamp: this.messages.timestamp
-        });
-        this.clear = false;
-        this.$nextTick(() => {
-          this.messages.content = "";
-          this.clear = true;
-        });
-        this.fetchMessages();
-      },
-      getNow: function() {
-        const today = new Date();
-        const date =
-          today.getFullYear() +
-          "-" +
-          (today.getMonth() + 1) +
-          "-" +
-          today.getDate();
-        const time =
-          today.getHours() +
-          ":" +
-          today.getMinutes() +
-          ":" +
-          today.getSeconds();
-        const dateTime = date + " " + time;
-        this.messages.timestamp = dateTime;
-      },
-      fetchMessages: function() {
-        axios
-          .get(fetch_msg_url, {
-            params: {
-              sender: this.messages.sender,
-              receiver: this.messages.receiver
-            }
-          })
-          .then(result => {
-            for (let i = 0; i < result.data.msgs.length; i++) {
-              this.$set(this.messages, i, {
-                sender: result.data.msgs[i].sender,
-                receiver: result.data.msgs[i].receiver,
-                content: result.data.msgs[i].content,
-                timestamp: result.data.msgs[i].timestamp
-              });
-            }
-          });
-      }
-    }
-  });
-
     app.goto = (destination) => {
         app.vue.page = destination;
     };
@@ -180,28 +52,32 @@ let init = (app) => {
     };
 
     app.set_rating = (r_idx, num_stars) => {
-        //console.log("set rating: row: ", r_idx, "| num_stars: ", num_stars );
         let movie = app.vue.reviews[r_idx];
         movie.rating = num_stars;
-        // Sets the stars on the server.
-        axios.post(set_rating_url, {movie_id: movie.movie_id, rating: num_stars});
+        axios.post(set_rating_url, 
+            {
+                movie_id: movie.movie_id, rating: num_stars
+            }
+        );
     };
 
     app.stars_out = (r_idx) => {
-        //console.log("stars out");
         app.vue.reviews[r_idx].num_stars_display =
             app.vue.reviews[r_idx].rating;
     };
 
     app.stars_over = (r_idx, num_stars) => {
-        //console.log("stars over");
         app.vue.reviews[r_idx].num_stars_display =
             num_stars;
     };
 
     app.show_all_favs = () => {
-        //console.log("show all favs");
-        axios.get(load_fav_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(
+            load_fav_url,
+            {
+                params: {"user_movie": "moana"}
+            }
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 app.vue.is_hide_favs_opt = true;
             }
@@ -214,8 +90,9 @@ let init = (app) => {
     };
 
     app.hide_favs = () => {
-        //console.log("hide favs");
-        axios.get(load_fav_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_fav_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 console.log("pring");
                 app.vue.is_show_more_favs_opt = true;
@@ -235,8 +112,9 @@ let init = (app) => {
     };
 
     app.show_all_rec_people = () => {
-        console.log("show all recommended people");
-        axios.get(load_rec_people_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_rec_people_url, 
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             app.vue.is_show_more_rec_people_opt = false;
             if (result.data.rows.length > 5) {
                 app.vue.is_hide_rec_people_opt = true;
@@ -249,8 +127,9 @@ let init = (app) => {
     };
 
     app.hide_rec_people = () => {
-        console.log("hide recommended people");
-        axios.get(load_rec_people_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_rec_people_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 console.log("pring");
                 app.vue.is_show_more_rec_people_opt = true;
@@ -270,8 +149,9 @@ let init = (app) => {
     };
 
     app.show_all_friends = () => {
-        //console.log("show all friends");
-        axios.get(load_friends_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_friends_url,
+            {params: {"user_movie": "moana"}})
+        .then( (result) => {
             app.vue.is_show_more_friends_opt = false;
             is_hide_friends_opt = true;
             if (result.data.rows.length > 5) {
@@ -282,8 +162,9 @@ let init = (app) => {
     };
 
     app.hide_friends = () => {
-        //console.log("hide friends");
-        axios.get(load_friends_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_friends_url, 
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 console.log("pring");
                 app.vue.is_show_more_friends_opt = true;
@@ -300,8 +181,9 @@ let init = (app) => {
     };
 
     app.show_all_reviews = () => {
-        //console.log("show all reviews");
-        axios.get(load_reviews_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_reviews_url, 
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             app.vue.is_show_more_reviews_opt = false;
             is_hide_reviews_opt = true;
             if (result.data.rows.length > 5) {
@@ -315,8 +197,9 @@ let init = (app) => {
     };
 
     app.hide_reviews = () => {
-        //console.log("hide reviews");
-        axios.get(load_reviews_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_reviews_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 console.log("pring");
                 app.vue.is_show_more_reviews_opt = true;
@@ -336,8 +219,9 @@ let init = (app) => {
     };
 
     app.reload_rand_recs = () => {
-        axios.get(load_rand_rec_url, {params: {"user_movie": "moana"}}).then( (result) => {
-            //console.log(result);
+        axios.get(load_rand_rec_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             app.vue.rec_movies = app.vue.enumerate(result.data.rows);
         });
     };
@@ -352,8 +236,252 @@ let init = (app) => {
         location.reload();
     };
 
+    app.clickHandler = (e, fromSocketId, isInnerDiv) => {
+        console.log("clickHandler");
+        let fromSocket = 
+            document.getElementById(fromSocketId);
+        let draggedElement = fromSocket.firstElementChild;
+
+        let positionSave = draggedElement.style.position;
+        let opacitySave = draggedElement.style.opacity;
+        let zIndexSave = draggedElement.style.zIndex;
+        let topSave = draggedElement.style.top;
+        let leftSave = draggedElement.style.left;
+    
+        let rect = draggedElement.getBoundingClientRect();
+
+        let fromSocketHeightSav = fromSocket.style.height;
+        fromSocket.style.height = rect.height + "px";
+
+        let xOffset = e.clientX - rect.left;
+        let yOffset = e.clientY - rect.top;
+  
+        let verticalScroll = window.scrollY;
+        let horizontalScroll = window.scrollX;
+
+        draggedElement.style.position = "absolute";
+        draggedElement.style.opacity = "0.9";
+        draggedElement.style.zIndex = "99";
+        if( isInnerDiv ) {
+            console.log("total: top of the dragged elemn:", rect.top + verticalScroll);
+            console.log("top of the dragged elemn:", rect.top);
+            console.log("verticalscroll:", verticalScroll);
+            draggedElement.style.top = (rect.top + verticalScroll) + "px";
+        }
+        else {
+            draggedElement.style.left = (rect.left + horizontalScroll) + "px";
+        }
+        let hitboxes = 
+            (isInnerDiv)?
+                app.vue.socketHitboxes
+                :app.vue.outerHitboxes;
+
+        let side = "";
+        for( let iter of hitboxes ) {
+            let rectIter = iter.elmn.getBoundingClientRect();
+            if( iter.elmn.id === fromSocketId ) {
+                side = iter.side;
+            }
+            let newTop =
+                rectIter.top
+                + verticalScroll
+                + ((rectIter.bottom - rectIter.top) / 2)
+                - ((rectIter.bottom - rectIter.top) / 5);
+            let newBottom = 
+                rectIter.top
+                + verticalScroll
+                + ((rectIter.bottom - rectIter.top) / 2)
+                + ((rectIter.bottom - rectIter.top) / 5);
+            let newLeft = 
+                rectIter.left
+                + ((rectIter.right - rectIter.left) / 2)
+                - ((rectIter.bottom - rectIter.top) / 5);
+            let newRight = 
+                rectIter.left
+                + ((rectIter.right - rectIter.left) / 2)
+                + ((rectIter.bottom - rectIter.top) / 5);
+            iter.top = newTop;
+            iter.bottom = newBottom;
+            iter.right = newRight;
+            iter.left = newLeft;
+            console.log(`iter: top: ${newTop} bottom: ${newBottom}`);
+        }
+  
+        document.onmouseup = (e) => {
+            console.log("onmouseup");
+            draggedElement.style.position = positionSave;
+            draggedElement.style.opacity = opacitySave;
+            draggedElement.style.zIndex = zIndexSave;
+            draggedElement.style.top = topSave;
+            draggedElement.style.left = leftSave;
+            fromSocket.style.height = fromSocketHeightSav + "px";
+  
+            document.onmouseup = null;
+            document.onmousemove = null;
+            app.vue.saveOrders();
+        };
+  
+        document.onmousemove = (e) => {
+            console.log("onmousemove");
+            e = e || window.event;
+            e.preventDefault();
+            if( isInnerDiv ) {
+                draggedElement.style.top = (e.clientY + window.scrollY - yOffset) + "px";
+            }
+            else {
+                draggedElement.style.left = (e.clientX + window.scrollY - xOffset) + "px";
+            }
+            let posY = e.clientY + window.scrollY;
+            let posX = e.clientX + window.scrollX;
+            console.log(`cursor: posY: ${posY}`);
+            for( let iter of hitboxes ) {
+                if( isInnerDiv && (iter.side !== side ) ) {
+                    continue;
+                }
+                if( isInnerDiv ) {
+                    if( posY > iter.top
+                        && posY < iter.bottom)
+                    {
+                        console.log(`iter.top: ${iter.top} bot: ${iter.bottom}`);
+                        if( fromSocketId != iter.elmn.id ) {
+                            app.vue.mouseenterHandler(fromSocketId,
+                                                      iter.elmn.id,
+                                                      side,
+                                                      hitboxes);
+                            break;
+                        }
+                    }
+                }
+                else { 
+                    if( posX < iter.right
+                        && posX > iter.left)
+                    {
+                        if( fromSocketId != iter.elmn.id ) {
+                            app.vue.mouseenterHandler(fromSocketId,
+                                                      iter.elmn.id,
+                                                      side,
+                                                      hitboxes);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+    };
+    console.log("ping after click"); 
+
+    app.mouseenterHandler = (fromSocketId,
+                             targetSocketId,
+                             side,
+                             hitboxes) => {
+        console.log("mouseenterHandler");
+        let fromSocket = document.getElementById(fromSocketId);
+        let targetSocket = document.getElementById(targetSocketId);
+        let fromSocketOrder = parseInt(fromSocket.style.order);
+        let targetSocketOrder = parseInt(targetSocket.style.order);
+        let isAdd = true;
+        if( fromSocketOrder < targetSocketOrder ) {
+            isAdd = false;
+        }
+        for( let iter of hitboxes ) {
+            if( iter.side !== side ) {
+                continue;
+            }
+            let elmnOrder = parseInt(iter.elmn.style.order);
+            if( isAdd ) {
+                if( elmnOrder >= targetSocketOrder
+                  && elmnOrder < fromSocketOrder )
+                {
+                    iter.elmn.style.order = (elmnOrder + 1).toString();
+                }
+            }
+            else {
+                if( elmnOrder <= targetSocketOrder
+                  && elmnOrder > fromSocketOrder )
+                {
+                    iter.elmn.style.order = (elmnOrder - 1).toString();
+                }
+            }
+        }
+        fromSocket.style.order = targetSocketOrder;
+        for( let iter of hitboxes) {
+            if( iter.side !== side ) {
+                continue;
+            }
+            let rectIter = iter.elmn.getBoundingClientRect();
+            let newTop =
+                rectIter.top
+                + ((rectIter.bottom - rectIter.top) / 2)
+                - ((rectIter.bottom - rectIter.top) / 10);
+            let newBottom = 
+                rectIter.top
+                + ((rectIter.bottom - rectIter.top) / 2)
+                + ((rectIter.bottom - rectIter.top) / 10);
+            let newLeft = 
+                rectIter.left
+                + ((rectIter.right - rectIter.left) / 2)
+                - ((rectIter.bottom - rectIter.top) / 10);
+            let newRight = 
+                rectIter.left
+                + ((rectIter.right - rectIter.left) / 2)
+                + ((rectIter.bottom - rectIter.top) / 10);
+            iter.top = newTop;
+            iter.left = newLeft;
+            iter.right = newRight;
+            iter.bottom = newBottom;
+        }
+    };
+    app.updateOrder = (newOrder) => {
+        console.log("updateOrder");
+        for(let i = 0; i < 3; i++) {
+            let order = newOrder[i * 2];
+            let side = newOrder[i * 2 + 1];
+            app.vue.outerHitboxes[i].elmn.style.order = order;
+            app.vue.outerHitboxes[i].side = side;
+        }
+        for(let i = 3; i < 9; i++) {
+            let order = newOrder[i * 2];
+            let side = newOrder[i * 2 + 1];
+            app.vue.socketHitboxes[i - 3].elmn.style.order = order;
+            app.vue.socketHitboxes[i - 3].side = side;
+        }
+    };
+
+    app.getOrders = () => {
+        console.log("getOrders");
+        axios.get(getOrderURL)
+        .then((response) => {
+            // handle success
+            app.vue.updateOrder(response.data.divOrders);
+        })
+    };
+
+    app.saveOrders = () => {
+        console.log("saveOrders");
+        let hitboxesPayload = [];
+        for( let iter of app.vue.outerHitboxes) {
+            hitboxesPayload.push(iter.elmn.style.order);
+            hitboxesPayload.push(iter.side);
+        }
+        for( let iter of app.vue.socketHitboxes) {
+            hitboxesPayload.push(iter.elmn.style.order);
+            hitboxesPayload.push(iter.side);
+        }
+        axios.post(saveOrderURL, hitboxesPayload)
+        .then(
+            function (response) {
+                //console.log("save orders:", response);
+            }
+        );
+    };
+
+    app.ping = () => {
+        console.log("ping");
+    }
+
     app.methods = {
         goto: app.goto,
+        ping: app.ping,
         enumerate: app.enumerate,
         cine_link: app.cine_link,
         set_rating: app.set_rating,
@@ -369,7 +497,12 @@ let init = (app) => {
         hide_reviews: app.hide_reviews,
         reload_rand_recs: app.reload_rand_recs,
         add_friend: app.add_friend,
-        accept_friend: app.accept_friend
+        accept_friend: app.accept_friend,
+        clickHandler: app.clickHandler,
+        mouseenterHandler: app.mouseenterHandler,
+        updateOrder: app.updateOrder,
+        getOrders: app.getOrders,
+        saveOrders: app.saveOrders
     };
 
     app.vue = new Vue({
@@ -379,13 +512,56 @@ let init = (app) => {
     });
 
     app.init = () => {
-        axios.get(load_rand_rec_url, {params: {"user_movie": "moana"}}).then( (result) => {
-            //console.log(result);
+        console.log("app.vue.clickHandler:", app.vue.clickHandler);
+        app.vue.getOrders();
+        const numItemsOnLeftSide = 3;
+        let orderIter = 0;
+        let side = "left";
+        for( let socketId of ["ca", "cb", "cc", "cd", "ce", "cf"] ) {
+            let socketElmn = document.getElementById(socketId);
+            let socketChild = socketElmn.firstElementChild;
+            socketElmn.style.height = socketChild.style.height;
+            socketElmn.style.order = ((orderIter % numItemsOnLeftSide) + 1).toString(); 
+            let side = (orderIter < numItemsOnLeftSide)? "left": "right";
+            app.vue.socketHitboxes.push(
+                {
+                    "side": side,
+                    "elmn": socketElmn,
+                    "left": 0,
+                    "right": 0,
+                    "top": 0,
+                    "bottom": 0,
+                }
+            );
+            orderIter++;
+        }
+        const numOuterItems = 3;
+        orderIter = 0;
+        side = "none";
+        for( let socketId of ["oca", "ocb", "occ"] ) {
+            let socketElmn = document.getElementById(socketId);
+            socketElmn.style.order = ((orderIter % numItemsOnLeftSide) + 1).toString(); 
+            app.vue.outerHitboxes.push(
+                {
+                    "side": side,
+                    "elmn": socketElmn,
+                    "left": 0,
+                    "right": 0,
+                    "top": 0,
+                    "bottom": 0,
+                }
+            );
+            orderIter++;
+        }
+        axios.get(load_rand_rec_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             app.vue.rec_movies = app.vue.enumerate(result.data.rows);
             app.vue.trailer_link = result.data.trailer;
         });
-        axios.get(load_fav_url, {params: {"user_movie": "moana"}}).then( (result) => {
-            //console.log(result);
+        axios.get(load_fav_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 app.vue.is_show_more_favs_opt = true;
                 app.vue.is_hide_favs_opt =  false;
@@ -400,8 +576,9 @@ let init = (app) => {
                 app.vue.is_no_favs = true;
             }
         });
-        axios.get(load_friends_url, {params: {"user_movie": "moana"}}).then( (result) => {
-            //console.log(result);
+        axios.get(load_friends_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 app.vue.is_show_more_friends_opt = true;
                 app.vue.is_hide_friends_opt =  false;
@@ -413,7 +590,9 @@ let init = (app) => {
                 app.vue.friends = app.vue.enumerate(result.data.rows);
             }
         });
-        axios.get(load_rec_people_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_rec_people_url, 
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 app.vue.is_show_more_rec_people_opt = true;
                 app.vue.is_hide_rec_people_opt =  false;
@@ -428,7 +607,9 @@ let init = (app) => {
                 app.vue.is_no_rec_people = true;
             }
         });
-        axios.get(load_reviews_url, {params: {"user_movie": "moana"}}).then( (result) => {
+        axios.get(load_reviews_url,
+            {params: {"user_movie": "moana"}}
+        ).then( (result) => {
             if (result.data.rows.length > 5) {
                 app.vue.is_show_more_reviews_opt = true;
                 app.vue.is_hide_reviews_opt =  false;
@@ -444,7 +625,7 @@ let init = (app) => {
             }
         });
     };
-
+    console.log("pretty woman!");
     app.init();
 };
 

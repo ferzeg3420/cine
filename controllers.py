@@ -47,6 +47,28 @@ size_of_the_database = 1000
 
 users = {}
 
+default_div_orderings = [
+    "1",
+    "none",
+    "2",
+    "none",
+    "3",
+    "none",
+    "1",
+    "left",
+    "2",
+    "left",
+    "3",
+    "left",
+    "1",
+    "right",
+    "2",
+    "right",
+    "3",
+    "right",
+]
+
+
 #---------------------------------  ---------------  ---------- Helpers
 
 def my_capitalize(s):
@@ -216,6 +238,8 @@ def index():
 
     return dict(
         chatsocket_url=chat_socket_url,
+        get_order_url=URL('get_order', signer=url_signer),
+        save_order_url=URL('save_order', signer=url_signer),
         load_rec_url=URL('load_rec', signer=url_signer),
         load_rand_rec_url=URL('load_rand_rec', signer=url_signer),
         load_fav_url=URL('load_favs', signer=url_signer),
@@ -827,3 +851,55 @@ def chat():
             break
     # No payload or some exit condition
     users[user_id] = None
+
+
+@action("get_order")
+@action.uses(db, session, url_signer.verify())
+def get_order():
+    print("--> get order")
+    user_id = auth.current_user.get('id')
+    print("--> user id:", user_id)
+    div_orders_row = db(db.div_order.user == user_id).select(db.div_order.data).first()
+    if div_orders_row == None:
+        div_orders_id = db.div_order.insert(user=user_id, data=default_div_orderings)
+        div_orders = db(db.div_order.id == div_orders_id).select(db.div_order.data).first().get('data')
+    else:    
+        div_orders = div_orders_row.get('data')
+        if len(div_orders) == 0:
+            div_orders_id = db.div_order.insert(user=user_id, data=default_div_orderings)
+            div_orders = db(db.div_order.id == div_orders_id).select(db.div_order.data).first().get('data')
+    print("-->div orders:", div_orders)
+    return dict(divOrders=div_orders)
+
+
+@action('save_order', method="POST")
+@action.uses(url_signer.verify())
+def add_review():
+    print("--> save_order")
+    user_id = auth.current_user.get('id')
+    div_orders = request.json
+    if len(div_orders) != 18:
+        return "error"
+    k = 0
+    for it in div_orders:
+        if type(it) != str:
+            return "error"
+        if k % 2 == 0:
+            if not it.isdigit():
+                return "error: not digit"
+            if int(it) < 0 or int(it) > 9:
+                return "error: invalid value for the order"
+        else:
+            if k > 5:
+                if it != "left" and it != "right":
+                    return "error: not right or left"
+            else:
+                if it != "none":
+                    return "error: not including none"
+        k += 1
+    db.div_order.update_or_insert(
+        db.div_order.user == user_id,
+        data=div_orders
+    )
+    print("--->", div_orders)
+    return "ok"

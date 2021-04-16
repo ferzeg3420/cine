@@ -1,17 +1,19 @@
 [[extend 'layout.html']]
 
-<section id="vue-target">
-    <chat ticket_url="[[=XML(generate_ticket_url)]]"
-          chatsocket_url="[[=chatsocket_url]]"
-          messages_url="[[=XML(load_messages_url)]]"
-          contacts_url="[[=XML(load_contacts_url)]]">
-    </chat>
-    <div class="columns">
-        <!-- left column -->
-        <div class="column is-one-quarter">
-            <div class="tile is-ancestor">
-                <div class="tile is-vertical is-parent">
-                    <div class="tile is-child box">
+<section id="vue-target"
+         class="my-outermost-container">
+    <!-- Quarter column horizontal-->
+    <div id="oca"
+         class="outer-placeholder-for-dragging-4">
+        <div class="my-outer-draggable-4">
+            <div @mousedown="clickHandler($event, 'oca', false)">
+                <i class="fas fa-grip-horizontal grip-handle"></i>
+            </div>
+            <!-- thirds row vertical -->
+            <div id="ca" style="background:salmon;" 
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         [[if len(info) == 0:]]
                             <a href="[[=URL('create_profile')]]">
                                 <img src="[[=URL('static', 'images/defprofilepic.jpg')]]" />
@@ -43,10 +45,20 @@
                             [[pass]] 
                         [[pass]]
                     </div>
-                    <div class="tile is-child box">
+                    <div @mousedown="clickHandler($event, 'ca', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- END thirds row vertical -->
+            <!-- thirds row vertical -->
+            <div id="cb" style="background:lightblue;"
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         <table class="table is-fullwidth">
                             <tr>
-                                <th>
+                                <th style="display: flex; flex-direction: row; justify-content: space-between;">
                                     Recommended
                                     <img class="animated-clapper"
                                          id="clap"
@@ -69,7 +81,17 @@
                         </a>
                         -->
                     </div>
-                    <div class="tile is-child box">
+                    <div @mousedown="clickHandler($event, 'cb', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- END thirds row vertical -->
+            <!-- thirds row vertical -->
+            <div id="cc" style="background:lightgreen;"
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
@@ -106,16 +128,26 @@
                         </a>
                         -->
                     </div>
+                    <div @mousedown="clickHandler($event, 'cc', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
                 </div>
             </div>
+            <!-- END thirds row vertical -->
         </div>
-        <!-- END of left column -->
-        <!-- center column -->
-        <div class="column">
-            <div class="box is-warning has-text-centered">
+    </div>
+    <!-- END Quarter column -->
+    <!-- Half column -->
+    <div id="ocb" class="half-outer-socket">
+        <div class="my-container-2">
+            <div @mousedown="clickHandler($event, 'ocb', false)">
+                <i class="fas fa-grip-horizontal grip-handle"></i>
+            </div>
+            <div class="my-half-box has-text-centered ocb-width">
                 <a  href="[[=URL('search')]]" class="button is-primary goldbutton">Find Movies</a>
             </div>
-            <div class="box is-primary">
+            <br>
+            <div class="my-half-box ocb-width">
                 <div class="box is-shadowless">
                     <p class="level-item
                               has-text-black
@@ -125,13 +157,12 @@
                     </p>
                 </div>
                 <div v-if="is_no_reviews"
-                     class="tile notification has-text-centered"
-                     style = "position:relative; top:-35px;">
+                     class="tile notification has-text-centered">
                     <p class="is-italic has-text-centered">No reviews yet.</p>
                 </div>
-                <div style = "position:relative; top:-35px;"
-                        class="tile is-ancestor is-fullwidth"
-                        v-for="rw in reviews"> 
+                <div style="position:relative; top:-35px;"
+                     class="tile is-ancestor is-fullwidth"
+                     v-for="rw in reviews"> 
                     <div class="tile is-vertical is-parent">
                         <!-- This div contains each review -->
                         <div class="tile is-child notification has-background-white-bis">
@@ -164,12 +195,20 @@
                 </a>
             </div>
         </div>
-        <!-- END of center column -->
-        <!-- right column -->
-        <div class="column is-one-quarter">
-            <div class="tile is-ancestor">
-                <div class="tile is-vertical is-parent">
-                    <div class="tile is-child box">
+    </div>
+    <!-- END Half column -->
+    <!-- Quarter column -->
+    <div id="occ"
+         class="outer-placeholder-for-dragging-4">
+        <div class="my-outer-draggable-4">
+            <div @mousedown="clickHandler($event, 'occ', false)">
+                <i class="fas fa-grip-horizontal grip-handle"></i>
+            </div>
+            <!-- thirds row vertical -->
+            <div id="cd" style="background: lightgreen"
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
@@ -211,7 +250,17 @@
                             &#128314
                         </a>
                     </div>
-                    <div class="tile is-child box">
+                    <div @mousedown="clickHandler($event, 'cd', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- END thirds row vertical -->
+            <!-- thirds row vertical -->
+            <div id="ce" style="background:lightgreen;"
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         <table class="table is-fullwidth">
                             <tr>
                                 <th>
@@ -245,7 +294,17 @@
                             &#128314
                         </a>
                     </div>
-                    <div class="tile is-child box">
+                    <div @mousedown="clickHandler($event, 'ce', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- END thirds row vertical -->
+            <!-- thirds row vertical -->
+            <div id="cf" style="background:lightblue;"
+                 class="my-placeholder-for-dragging-3">
+                <div class="my-inner-draggable-3">
+                    <div class="my-quarter-box">
                         <p class="has-text-black
                             has-text-weight-bold
                             has-text-centered">
@@ -254,11 +313,21 @@
                         <iframe style="position:relative; top:12px;"
                                 :src='trailer_link'></iframe>
                     </div>
+                    <div @mousedown="clickHandler($event, 'cf', true)">
+                        <i class="fas fa-grip-vertical grip-handle"></i>
+                    </div>
                 </div>
             </div>
+            <!-- END thirds row vertical -->
         </div>
     </div>
-    <!-- END of right column -->
+    <!-- END Quarter column -->
+
+    <chat ticket_url="[[=XML(generate_ticket_url)]]"
+          chatsocket_url="[[=chatsocket_url]]"
+          messages_url="[[=XML(load_messages_url)]]"
+          contacts_url="[[=XML(load_contacts_url)]]">
+    </chat>
 </section>
 
 [[block page_scripts]]
@@ -274,6 +343,8 @@
     let accept_friend_url= "[[=XML(accept_friend_url)]]";
     let save_msg_url= "[[=XML(save_msg_url)]]";
     let fetch_msg_url= "[[=XML(fetch_msg_url)]]";
+    let getOrderURL = "[[=XML(get_order_url)]]";
+    let saveOrderURL = "[[=XML(save_order_url)]]";
 </script>
 <script src="js/components/vue-chat.js"></script>
 <script src="js/index.js"></script>

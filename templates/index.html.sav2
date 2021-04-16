@@ -1,0 +1,53 @@
+[[extend 'layout.html']]
+
+<section id="vue-target">
+    <chat ticket_url="[[=XML(generate_ticket_url)]]"
+          chatsocket_url="[[=chatsocket_url]]"
+          messages_url="[[=XML(load_messages_url)]]"
+          contacts_url="[[=XML(load_contacts_url)]]">
+    </chat>
+    <div>
+    </div>
+    <h1> Test 2</h1>
+    <div class="my-column-container">
+        <div class="my-left-column">
+            <div class="my-column-box">
+                left box 1
+            </div>
+            <div class="my-column-box">
+                left box 2
+            </div>
+        </div>
+        <div class="my-center-column">
+            <div class="my-column-box">
+                center
+            </div>
+        </div>
+        <div class="my-right-column">
+            <div class="my-column-box">
+                right box 1
+            </div>
+            <div class="my-column-box">
+                right box 2
+            </div>
+        </div>
+    </div>
+</section>
+
+[[block page_scripts]]
+<script>
+    let load_rec_url = "[[=XML(load_rec_url)]]";
+    let load_rand_rec_url = "[[=XML(load_rand_rec_url)]]";
+    let load_fav_url = "[[=XML(load_fav_url)]]";
+    let load_friends_url = "[[=XML(load_friends_url)]]";
+    let load_rec_people_url = "[[=XML(load_rec_people_url)]]";
+    let load_reviews_url = "[[=XML(load_reviews_url)]]";
+    let set_rating_url= "[[=XML(set_rating_url)]]";
+    let add_friend_url= "[[=XML(add_friend_url)]]";
+    let accept_friend_url= "[[=XML(accept_friend_url)]]";
+    let save_msg_url= "[[=XML(save_msg_url)]]";
+    let fetch_msg_url= "[[=XML(fetch_msg_url)]]";
+</script>
+<script src="js/components/vue-chat.js"></script>
+<script src="js/index.js"></script>
+[[end]]
