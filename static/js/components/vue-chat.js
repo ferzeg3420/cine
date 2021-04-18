@@ -2,6 +2,7 @@ Vue.component('chat', {
     props: ['ticket_url', 'contacts_url', 'messages_url', 'chatsocket_url'],
     data: function () {
         return {
+           is_chat_modal_open: false,
            is_open: false,
            is_contacts: true,
            interlocutor: "",
@@ -81,6 +82,16 @@ Vue.component('chat', {
             );
             this.scroll_to_bottom();
         },
+        expand_chat_modal: function () {
+            this.is_chat_modal_open = true;
+        },
+        minimize_chat_modal: function () {
+            this.is_chat_modal_open = false;
+        },
+        exit_chat_modal: function () {
+            this.is_chat_modal_open = false;
+            this.close();
+        },
         back_out_of_contact: function () {
             this.is_contacts = true;
             this.close_chat();
@@ -142,63 +153,122 @@ Vue.component('chat', {
     },
     template: '\
 <div>\
-    <div class="open-button" @click="open">Chat 	&#9650;\
-    </div>\
-    <div v-if="is_open"\
-         class="chat-popup"\
-         id="chat-window"\
-         @keydown.enter="send_message">\
-        <div v-show="is_contacts"\
-             class="chat-container">\
-            <div class="top-chat-bar">\
-                <div class="chat-title">\
-                    Contacts\
-                </div>\
-                <div class="close-button"\
-                    @click="close">\
-                    &#9662;\
-                </div>\
-            </div>\
-            <div class="chat-center-area">\
-                <div v-for="contact in contacts"\
-                     @click="open_a_contact(contact.id)"\
-                     class="contact">\
-                    {{contact.name}}\
+    <div v-if="is_chat_modal_open">\
+        <div class="chat-modal-background">\
+            <div class="chat-modal">\
+                <div v-show="!is_contacts" class="chat-container-expanded">\
+                    <div class="top-chat-bar">\
+                        <div class="minimize-chat-modal"\
+                             @click="minimize_chat_modal">\
+                            &#9664;\
+                        </div>\
+                        <div class="chat-title">\
+                            {{interlocutor}}\
+                        </div>\
+                        <div class="exit-chat-modal"\
+                            @click="exit_chat_modal">\
+                            X\
+                        </div>\
+                    </div>\
+                    <div class="chat-center-area-expanded"\
+                         id="secret"\
+                         ref="secret">\
+                        <div v-for="message in messages">\
+                            <div v-if="message.recipient_id !== current_contact"\
+                            class="message-container">\
+                                <div class="message-from-me-expanded">\
+                                    {{message.content}}\
+                                </div>\
+                            </div>\
+                            <div v-else \
+                                 class="message-container">\
+                                <div class="message-from-other-expanded">\
+                                    {{message.content}}\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </div>\
+                    <div class="input-area-expanded">\
+                        <input v-model="text_input" class="chat-input-extended"></input>\
+                        <div @click="send_message()"\
+                             class="send-button-expanded">\
+                            send\
+                        </div>\
+                    </div>\
                 </div>\
             </div>\
         </div>\
-        <div v-show="!is_contacts" class="chat-container">\
-            <div class="top-chat-bar">\
-                <div class="back-button"\
-                     @click="back_out_of_contact">\
-                    &#9664;\
-                </div>\
-                <div class="chat-title">\
-                    {{interlocutor}}\
-                </div>\
-                <div class="close-button"\
-                    @click="close">\
-                    &#9662;\
-                </div>\
-            </div>\
-            <div class="chat-center-area"\
-                 id="secret"\
-                 ref="secret">\
-                <div v-for="message in messages">\
-                    <div v-if="message.recipient_id !== current_contact"\
-                         class="message-from-me">\
-                        {{message.content}}\
+    </div>\
+    <div v-else>\
+        <div class="open-button" @click="open">Chat 	&#9650;\
+        </div>\
+        <div v-if="is_open"\
+             class="chat-popup"\
+             id="chat-window"\
+             @keydown.enter="send_message">\
+            <div v-show="is_contacts"\
+                 class="chat-container">\
+                <div class="top-chat-bar">\
+                    <div class="chat-title">\
+                        Contacts\
                     </div>\
-                    <div v-else class="message-from-other">\
-                        {{message.content}}\
+                    <div class="close-button"\
+                        @click="close">\
+                        &#9662;\
                     </div>\
                 </div>\
+                <div class="chat-center-area">\
+                    <div v-for="contact in contacts"\
+                         @click="open_a_contact(contact.id)"\
+                         class="contact">\
+                        {{contact.name}}\
+                    </div>\
+                </div>\
             </div>\
-            <div class="input-area">\
-                <input v-model="text_input" class="chat-input"></input>\
-                <div @click="send_message()"\
-                     class="send-button">\
-                    send\
+            <div v-show="!is_contacts" class="chat-container">\
+                <div class="top-chat-bar">\
+                    <div class="back-button"\
+                         @click="back_out_of_contact">\
+                        &#9664;\
+                    </div>\
+                    <div class="chat-title">\
+                        {{interlocutor}}\
+                    </div>\
+                    <div class="close-expand-container">\
+                        <div class="expand-button"\
+                             @click="expand_chat_modal">\
+                            <i class="fas fa-expand-arrows-alt"></i>\
+                        </div>\
+                        <div class="close-button"\
+                            @click="close">\
+                            &#9662;\
+                        </div>\
+                    </div>\
+                </div>\
+                <div class="chat-center-area"\
+                     id="secret"\
+                     ref="secret">\
+                    <div v-for="message in messages">\
+                        <div v-if="message.recipient_id !== current_contact"\
+                        class="message-container">\
+                            <div class="message-from-me">\
+                                {{message.content}}\
+                            </div>\
+                        </div>\
+                        <div v-else \
+                             class="message-container">\
+                            <div class="message-from-other">\
+                                {{message.content}}\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>\
+                <div class="input-area">\
+                    <input v-model="text_input" class="chat-input"></input>\
+                    <div @click="send_message()"\
+                         class="send-button">\
+                        send\
+                    </div>\
                 </div>\
             </div>\
         </div>\

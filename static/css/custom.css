@@ -51,8 +51,21 @@ body.fade {
 .chat-center-area {
     height: 350px;
     border: 3px solid #f1f1f1;
+    padding-top: 7px;
+    padding-bottom: 10px;
     margin-bottom: 5px;
     overflow-y: auto;
+    background: white;
+}
+
+.chat-center-area-expanded {
+    height: 82.5%;
+    border: 3px solid #f1f1f1;
+    padding-top: 7px;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    overflow-y: auto;
+    background: white;
 }
 
 .contact {
@@ -68,26 +81,74 @@ body.fade {
     border-bottom-width: 2px;
 }
 
+.message-container {
+    display: flex;
+}
+
 .message-from-other {
-    background-color: blue;
+    display: inline-block;
+    background-color: cornflowerblue;
     color: white;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    margin-left: 4px;
-    margin-right: 20px;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    margin-right: auto;
+    margin-left: 2px;
+    max-width: 19vw;
+    min-width: 5vw;
+}
+
+.message-from-other-expanded {
+    display: inline-block;
+    background-color: cornflowerblue;
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    margin-right: auto;
+    margin-left: 2px;
+    max-width: 90%;
+    min-width: 5%;
 }
 
 .message-from-me {
-    background-color: grey;
+    display: inline-block;
+    background-color: silver;
     color: white;
-    margin-bottom: 5px;
-    border-radius: 6px;
-    margin-left: 20px;
-    margin-right: 4px;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    margin-left: auto;
+    margin-right: 2px;
+    max-width: 19vw;
+    min-width: 5vw;
+    text-align: right;
+}
+
+.message-from-me-expanded {
+    display: inline-block;
+    background-color: silver;
+    color: white;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    margin-left: auto;
+    margin-right: 2px;
+    max-width: 80%;
+    min-width: 5%;
+    text-align: right;
 }
 
 .input-area {
     height: 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.input-area-expanded {
+    height: 8%;
+    width: 100%;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -99,28 +160,53 @@ body.fade {
     color: black;
     font-weight: 300;
     font-family: Arial, sans-serif;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.close-expand-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 5vw;
+}
+
+.expand-button {
+    cursor: pointer; 
+    color: black;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 5px;
 }
 
 .back-button {
     cursor: pointer; 
     color: black;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .chat-title {
     flex-basis: 90%;
     font-size: 1.5rem; 
     text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .top-chat-bar {
+    height: 40px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 /* Button used to open the chat form - fixed at the bottom of the page */
 .open-button {
-    height: 35px;
+    height: 5vh;
     border-radius: 4px 4px 0 0;
     display: flex;
     justify-content: center;
@@ -128,8 +214,8 @@ body.fade {
     opacity: 0.8;
     position: fixed;
     bottom: 0px;
-    right: 28px;
-    width: 280px;
+    right: 5vw;
+    width: 20vw;
     background-color: whitesmoke;
     color: black;
     cursor: pointer;
@@ -141,8 +227,8 @@ body.fade {
     display: block;
     position: fixed;
     bottom: 0px;
-    right: 28px;
-    width: 380px;
+    right: 4.75vw;
+    width: 21vw;
     border-radius: 6px 6px 0 0;
     border: 1px solid #bcb8ad;
     z-index: 2;
@@ -150,10 +236,29 @@ body.fade {
 
 /* Add styles to the chat container */
 .chat-container {
-    max-width: 380px;
-    padding: 10px;
-    background-color: white;
+    max-width: 21vw;
+    padding: 2px;
+    background-color: whitesmoke;
     border-radius: 6px 6px 0 0;
+}
+
+.chat-container-expanded {
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    background-color: dodgerblue;
+    border-radius: 6px 6px 0 0;
+}
+
+.chat-container-expanded textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    resize: none;
+    min-height: 200px;
 }
 
 /* Full-width textarea */
@@ -165,6 +270,11 @@ body.fade {
     background: #f1f1f1;
     resize: none;
     min-height: 200px;
+}
+
+.chat-container-expanded textarea:focus {
+    background-color: #ddd;
+    outline: none;
 }
 
 /* When the textarea gets focus, do something */
@@ -181,8 +291,27 @@ body.fade {
     align-items: center;
     width: 20%;
     height: 40px;
-    background-color: blue;
-    opacity: 0.8;
+    background-color: dodgerblue;
+    opacity: 0.9;
+    cursor: pointer;
+    border-color: lightGrey !important;
+    border-radius: 0px 4px 4px 0px !important;
+    border-style: solid !important;
+    border-top-width: 2px !important;
+    border-bottom-width: 2px !important;
+    border-left-width: 0px !important;
+    border-right-width: 2px !important;
+}
+
+.send-button-expanded {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
+    height: 100%;
+    background-color: dodgerblue;
+    opacity: 0.9;
     cursor: pointer;
     border-color: lightGrey !important;
     border-radius: 0px 4px 4px 0px !important;
@@ -198,6 +327,19 @@ body.fade {
     width: 80% !important;
     background-color: white !important;
     height: 40px !important;
+    border-color: lightGrey !important;
+    border-radius: 4px 0 0 4px !important;
+    border-style: solid !important;
+    border-top-width: 2px !important;
+    border-bottom-width: 2px !important;
+    border-left-width: 2px !important;
+    border-right-width: 0px !important;
+}
+
+.chat-input-extended {
+    width: 90% !important;
+    background-color: white !important;
+    height: 100% !important;
     border-color: lightGrey !important;
     border-radius: 4px 0 0 4px !important;
     border-style: solid !important;
@@ -403,4 +545,44 @@ body.fade {
     border-radius: 6px;
     background-color: white;
     width: 42vw;
+}
+
+.chat-modal-background {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    background-color: rgba(0,0,0,0.8);
+    z-index: 2;
+}
+
+.chat-modal {
+    width: 50vw;
+    height: 70vh;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    background-color: blue;
+    color: black;
+    z-index: 3;
+}
+
+.exit-chat-modal {
+    cursor: pointer;
+    color: black;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.minimize-chat-modal {
+    cursor: pointer;
+    color: black;
+    margin-top: auto;
+    margin-bottom: auto;
 }
