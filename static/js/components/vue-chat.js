@@ -28,11 +28,17 @@ Vue.component('chat', {
     },
     methods: {
         scroll_to_bottom: function() {
-            let element = this.$el.querySelector("#secrect");
             this.$nextTick(() => {
-                this.$refs.secret.backgroundColor =  "red";
-                this.$refs.secret.scrollTop = 
-                    this.$refs.secret.scrollHeight;
+                this.$refs.scroll.backgroundColor =  "red";
+                this.$refs.scroll.scrollTop = 
+                    this.$refs.scroll.scrollHeight;
+            });
+        },
+        scroll_to_bottom_expanded: function() {
+            this.$nextTick(() => {
+                this.$refs.scrollExpanded.backgroundColor =  "red";
+                this.$refs.scrollExpanded.scrollTop = 
+                    this.$refs.scrollExpanded.scrollHeight;
             });
         },
         open_a_contact: function (_contact_id) {
@@ -84,6 +90,8 @@ Vue.component('chat', {
         },
         expand_chat_modal: function () {
             this.is_chat_modal_open = true;
+            this.scroll_to_bottom_expanded();
+
         },
         minimize_chat_modal: function () {
             this.is_chat_modal_open = false;
@@ -153,7 +161,8 @@ Vue.component('chat', {
     },
     template: '\
 <div>\
-    <div v-if="is_chat_modal_open">\
+    <div v-if="is_chat_modal_open" \
+         @keydown.enter="send_message">\
         <div class="chat-modal-background">\
             <div class="chat-modal">\
                 <div v-show="!is_contacts" class="chat-container-expanded">\
@@ -171,8 +180,8 @@ Vue.component('chat', {
                         </div>\
                     </div>\
                     <div class="chat-center-area-expanded"\
-                         id="secret"\
-                         ref="secret">\
+                         id="scrollExpanded"\
+                         ref="scrollExpanded">\
                         <div v-for="message in messages">\
                             <div v-if="message.recipient_id !== current_contact"\
                             class="message-container">\
@@ -217,7 +226,7 @@ Vue.component('chat', {
                         &#9662;\
                     </div>\
                 </div>\
-                <div class="chat-center-area">\
+                <div class="chat-center-area-contact">\
                     <div v-for="contact in contacts"\
                          @click="open_a_contact(contact.id)"\
                          class="contact">\
@@ -246,19 +255,23 @@ Vue.component('chat', {
                     </div>\
                 </div>\
                 <div class="chat-center-area"\
-                     id="secret"\
-                     ref="secret">\
+                     id="scroll"\
+                     ref="scroll">\
                     <div v-for="message in messages">\
                         <div v-if="message.recipient_id !== current_contact"\
                         class="message-container">\
                             <div class="message-from-me">\
                                 {{message.content}}\
                             </div>\
+                            <div class="tri-right">\
+                            </div>\
                         </div>\
                         <div v-else \
                              class="message-container">\
                             <div class="message-from-other">\
                                 {{message.content}}\
+                            </div>\
+                            <div class="tri-left">\
                             </div>\
                         </div>\
                     </div>\

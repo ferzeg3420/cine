@@ -1,12 +1,14 @@
-Make the chat aling. Probably also grow.
+Fix the auth page.
+
+Fix the topbar (the black one with the logo, burger, fast access links).
 
 Reorganize the movie info pages
-
-Fix the user profile image not being saved
 
 Fix the bugs on the recommendation engine.
 
 Make a better profile page.
+
+Fix the user profile image not being saved (?? Could not reproduce)
 
 First order of business is fix all the icons to make more sense. A popcorn and a kernel would be nice.
 

@@ -68,6 +68,15 @@ body.fade {
     background: white;
 }
 
+.chat-center-area-contact {
+    height: 350px;
+    border: 3px solid #f1f1f1;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    overflow-y: auto;
+    background: white;
+}
+
 .contact {
     cursor: pointer;
     display: flex;
@@ -83,6 +92,9 @@ body.fade {
 
 .message-container {
     display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 12px;
 }
 
 .message-from-other {
@@ -91,7 +103,6 @@ body.fade {
     color: white;
     padding: 8px;
     border-radius: 8px;
-    margin-bottom: 12px;
     margin-right: auto;
     margin-left: 2px;
     max-width: 19vw;
@@ -104,7 +115,6 @@ body.fade {
     color: white;
     padding: 8px;
     border-radius: 8px;
-    margin-bottom: 12px;
     margin-right: auto;
     margin-left: 2px;
     max-width: 90%;
@@ -116,7 +126,6 @@ body.fade {
     background-color: silver;
     color: white;
     padding: 8px;
-    margin-bottom: 12px;
     border-radius: 8px;
     margin-left: auto;
     margin-right: 2px;
@@ -541,6 +550,7 @@ body.fade {
 }
 
 .my-half-box {
+    margin-bottom: 25px;
     padding: 20px;
     border-radius: 6px;
     background-color: white;
@@ -585,4 +595,25 @@ body.fade {
     color: black;
     margin-top: auto;
     margin-bottom: auto;
+}
+
+.tri-right {
+    align-self: flex-end;
+    margin-right: 10px;
+    height: 0px;
+    width: 0px;
+    border-left: 10px solid transparent; 
+    border-top: 0 solid transparent; 
+    border-right: 10px solid silver; 
+    border-bottom: 10px solid transparent; 
+}
+
+.tri-left {
+    margin-left: 10px;
+    height: 0px;
+    width: 0px;
+    border-left: 10px solid cornflowerblue; 
+    border-top: 0 solid transparent; 
+    border-right: 10px solid transparent; 
+    border-bottom: 10px solid transparent; 
 }
