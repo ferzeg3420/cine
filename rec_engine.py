@@ -45,7 +45,6 @@ def recommend_similar_descript(user_descript):
 
    train_set.pop(-1) # gets rid of the user_description for future use.
 
-   #print(sim_movies)
    sim_movies = enumerate_movies(sim_movies)
    sim_movies.pop(-1) # gets rid of the user's description
 
@@ -53,7 +52,6 @@ def recommend_similar_descript(user_descript):
 
    r_similar_movies = []
    for i in sim_movies[:5]:
-      #print(i[0])
       r_similar_movies.append(i[0])
    return r_similar_movies
 
@@ -102,7 +100,6 @@ def recommend_similar_from_list(movies, movie_ids):
 
    r_similar_movies = []
    for i in sim_movies[:5]:
-      #print(i[0])
       r_similar_movies.append(i[0])
    return r_similar_movies
 
@@ -116,7 +113,6 @@ def find_similar_title(title):
    # with other elements
 
    sim_movies = enumerate_movies(sim_movies)
-   #print(sim_movies)
 
    sim_movies.pop(-1) # gets rid of the user's input movies that were added on
    train_set_4_title.pop(-1) # gets rid of the user's input movies that were added on
@@ -125,6 +121,5 @@ def find_similar_title(title):
 
    r_similar_movies = []
    for i in sim_movies[:5]:
-      #print(i[0])
       r_similar_movies.append(i[0])
    return r_similar_movies

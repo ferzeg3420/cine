@@ -86,7 +86,6 @@ def my_capitalize(s):
         else:
             r.append(e.capitalize())
         i += 1
-    #print(r)
     return ' '.join(r)
 
 def format_movies(movies):
@@ -115,7 +114,6 @@ def get_trailer_from_movie_id(id):
 def get_username(_id):
     auth_entry = db(db.auth_user.id == _id).select().first()
     username = auth_entry.get('first_name') + ' ' + auth_entry.get('last_name')
-    #print(username)
     return username
 
 def get_people_same_favs(current_user):
@@ -185,7 +183,6 @@ def get_rec_people():
 
     # sorts the recommended people by number of similar likes
     rec_people = {k: v for k, v in sorted(rec_people.items(), key=lambda item: item[1], reverse=True)}
-    #print(rec_people)
     return rec_people
 
 cwd = os.path.dirname(__file__)
@@ -233,10 +230,13 @@ def get_trailer():
 @action('index')
 @action.uses('index.html', auth.user, db, session)
 def index():
+    user = auth.get_user()
+    globals()['user'] = user
     chat_socket_url = \
         "wss://" + request.environ.get('HTTP_HOST') + URL('chatsocket')
 
     return dict(
+        user=user,
         chatsocket_url=chat_socket_url,
         get_order_url=URL('get_order', signer=url_signer),
         save_order_url=URL('save_order', signer=url_signer),
@@ -283,7 +283,6 @@ def load_rand_rec():
 
     trailer = get_trailer_from_movie_id(result_movies[0])
     for id in result_movies[:5]:
-        #print("from movie id in rand rec:", id, get_title_from_movie_id(id))
         t = get_title_from_movie_id(id)
         rows.append({
             'title': t,
@@ -319,12 +318,10 @@ def load_rec_people():
     rows_ = [ i[0] for i in get_rec_people().items() ]
     rows = []
     for i in rows_:
-    #    print(i)
         username = get_username(i)
         rows.append({"id": i,
 					 "name": username,
 					 "status": get_status(i)})
-    #print(rows)
     return dict(rows=rows)
 
 @action('load_reviews')
@@ -367,7 +364,9 @@ def get_movie_info():
 @action('movie_info_page/<movie_id>')
 @action.uses('movie_info_page.html', auth.user, db, session)
 def movie_info_page(movie_id=None):
+    user = auth.get_user()
     return dict(
+        user=user,
         movie_id=movie_id,
         get_reviews_url=URL('get_reviews', signer=url_signer),
         add_review_url=URL('add_review', signer=url_signer),
@@ -381,12 +380,9 @@ def get_reviews_helper(id):
     unformatted = db(db.reviews.movie == id).select(orderby=~db.reviews.ts)
     reviews = []
     for j in unformatted:
-        #print(db(db.stars).select())
-        #print(j)
         rating = db((db.stars.movie == j.movie)
                     & (db.stars.rater == j.reviewer)).select().first()
         name = get_name(j.user_email)
-        #print("name, rating", name, rating)
         is_owner = 1 if j.user_email == auth.current_user.get('email') else 0
         formatted_entry = {'review_id': j.id,
                            'text': j.review_text,
@@ -412,12 +408,9 @@ def add_review():
                          & (db.reviews.user_email == get_user_email()))
     if len(review_entry.select()) == 0:
         db.reviews.insert(review_text=r, movie=id, user_email=get_user_email(), reviewer=get_user())
-        #print("no original review")
     else:
         new_ts = datetime.datetime.utcnow()
-        #print(review_entry.select().first())
         review_entry.update(review_text=r, ts=new_ts)
-        #print("Yes original review")
     reviews = get_reviews_helper(id) # formats the review for the javascript part
     return dict(reviews=reviews)
 
@@ -437,7 +430,9 @@ def delete_review():
 @action('search')
 @action.uses('search.html', auth.user, db, session)
 def search():
+   user = auth.get_user()
    return dict(
+        user=user,
         load_rec_url = URL('load_rec', signer=url_signer),
         find_title_url = URL('find_title', signer=url_signer),
         load_rec_descript_url = URL('load_rec_descript', signer=url_signer),
@@ -468,10 +463,8 @@ def load_rec():
 @action('find_title')
 @action.uses(url_signer.verify())
 def find_title():
-    #print("find title")
     movie_title = request.params.get('user_movie')
     found_ids = find_similar_title(movie_title)
-    #print(found_ids)
     rows = []
     for id in found_ids:
         title = get_title_from_movie_id(id)
@@ -543,6 +536,7 @@ def set_favorite():
 @action('create_profile', method=['GET', 'POST'])
 @action.uses('profile_form.html', db, session)
 def create_profile():
+    user = auth.get_user()
     form = Form(
                 [
                   Field('Photo', 'upload'),
@@ -561,7 +555,7 @@ def create_profile():
             favMovie=form.vars.get('Bio')
         )
         redirect(URL('index')) 
-    return dict(form=form)
+    return dict(user=user, form=form)
 	
 @action('edit_profile', method=['GET', 'POST'])
 @action.uses('edit_profile_form.html', auth.user, db, session)
@@ -584,7 +578,7 @@ def edit_profile():
             favMovie=form.vars.get('Bio')
         )
         redirect(URL('index')) 
-    return dict(form=form)
+    return dict(user=user, form=form)
 #    return dict(profile_id=profile_id, formBio=bio, formMovie=favMovie, formImg=img)
 
 @action('update_profile', method=['GET', 'POST'])
@@ -610,7 +604,6 @@ def add_friend():
 @action('accept_friend', method="POST")
 @action.uses(url_signer.verify(), db, auth.user)
 def accept_friend():
-    print("---> in accept friend")
     user_requested = auth.current_user.get('id')
     requester = request.json.get('requester')
     friendship_entry = db((db.friends.requester == requester) &
@@ -625,15 +618,11 @@ def accept_friend():
             status=4
         )
         if user_requested < int(requester): #fer
-            print("---> inserting in db a:", user_requested)
-            print("---> inserting in db b:", requester)
             db.conversation.update_or_insert(
                 interlocutor_a=user_requested,
                 interlocutor_b=int(requester),
             )
         else:
-            print("---> inserting in db a:", user_requested)
-            print("---> inserting in db b:", requester)
             db.conversation.update_or_insert(
                 interlocutor_a=int(requester),
                 interlocutor_b=user_requested,
@@ -697,7 +686,6 @@ def fetch_msg():
 @action("load_messages/<contact_id>")
 @action.uses(auth.user, db)
 def load_messages(contact_id):
-    print("messages")
     user = auth.get_user() or redirect(URL('auth/login'))
     user_id = user['id']
     if int(contact_id) < user_id:
@@ -723,7 +711,6 @@ def load_messages(contact_id):
 @action("generate_ticket")
 @action.uses(auth.user, db)
 def generate_ticket():
-    print("---> tickets")
     user = auth.get_user() or redirect(URL('auth/login'))
     ticket = {
         "client_ip": request.environ.get('REMOTE_ADDR'),
@@ -741,7 +728,6 @@ def generate_ticket():
 @action("get_contacts")
 @action.uses(auth.user, db)
 def get_contacts():
-    print("---> contacts")
     user = auth.get_user() or redirect(URL('auth/login'))
     user_id = user['id']
     contacts = []
@@ -752,15 +738,12 @@ def get_contacts():
         friend_id = contact_pair.get('friend_b')
         name = "{} {}".format(friend_b.get('first_name'), friend_b.get('last_name'))
         contacts.append({"name": name, "id": friend_id})
-    print("---> contacts:", contacts)
     return dict(contacts=contacts)
 
 @action('chatsocket')
 @action.uses(db) 
 def chat():
-    print("---> chat socket")
     # Validate the websocket ticket
-    print("---> request environ:", request.environ)
     ws = request.environ.get('wsgi.websocket')
     ticket_payload_serialized = ws.receive()
     if ticket_payload_serialized == None:
@@ -856,9 +839,7 @@ def chat():
 @action("get_order")
 @action.uses(db, session, url_signer.verify())
 def get_order():
-    print("--> get order")
     user_id = auth.current_user.get('id')
-    print("--> user id:", user_id)
     div_orders_row = db(db.div_order.user == user_id).select(db.div_order.data).first()
     if div_orders_row == None:
         div_orders_id = db.div_order.insert(user=user_id, data=default_div_orderings)
@@ -868,14 +849,12 @@ def get_order():
         if len(div_orders) == 0:
             div_orders_id = db.div_order.insert(user=user_id, data=default_div_orderings)
             div_orders = db(db.div_order.id == div_orders_id).select(db.div_order.data).first().get('data')
-    print("-->div orders:", div_orders)
     return dict(divOrders=div_orders)
 
 
 @action('save_order', method="POST")
 @action.uses(url_signer.verify())
 def add_review():
-    print("--> save_order")
     user_id = auth.current_user.get('id')
     div_orders = request.json
     if len(div_orders) != 18:
@@ -901,5 +880,4 @@ def add_review():
         db.div_order.user == user_id,
         data=div_orders
     )
-    print("--->", div_orders)
     return "ok"
