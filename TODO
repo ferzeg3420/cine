@@ -2,19 +2,14 @@ Reorganize the movie info pages
 
 Fix the bugs on the recommendation engine.
 
-Make a better profile page.
+Make a better profile page?
 
 Fix the user profile image not being saved (?? Could not reproduce)
 
-First order of business is fix all the icons to make more sense. A popcorn and a kernel would be nice.
+A popcorn and a kernel icon would be nice? Maybe just a poof cloud animation for the transition between corncob and popcorn. 
 
-Add an animation for collapsing the comment box. 
+Add an animation for collapsing the comment box. I want o
 
-Add an animation for the kernel popping into a popcorn.
+On the homepage: can a movie the user has liked be recommended to them?
 
-In the homepage:
-    The recommended movies should avoid recommending movies the user already likes or has selected as favorite.
-    Implement a limit to how many people/movies can be seen on each table in the homepage. Then a link to see the rest.
-    Reviews should not have the author. They should have a rating associated with the movie, and the title of the movie.
-
-Make a movie synch feature in the chat?
+Make a movie synch feature in the chat? would be pretty easy. I'm thinking a command like !sync

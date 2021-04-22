@@ -13,6 +13,16 @@ body.fade {
     transition: none;
 }
 
+.navbar-logo {
+    background: whitesmoke;
+    border-radius: 0px 2px 2px 0px;
+}
+
+.navbar-logo:hover {
+    background: whitesmoke !important;
+    opacity: 0.9;
+}
+
 .goldbutton{
      background: rgb(223, 117, 20) !important;
 }

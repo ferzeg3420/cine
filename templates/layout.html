@@ -14,7 +14,7 @@
   <body>    
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href="/cine/">
+        <a class="navbar-item navbar-logo" href="/cine/">
           <figure class="image is-32x32" style="position: relative; top: 10px;">
             <img class="is-rounded" src="[[=URL('static', 'cinefinal2.png')]]">
           </figure>
@@ -38,7 +38,7 @@
           <div class="navbar-item">
             <div class="buttons">
               [[if globals().get('user'):]]
-              <a class="button is-primary" href="[[=URL('auth/logout')]]">Sign out</a>
+              <a class="button is-light" href="[[=URL('auth/logout')]]">Sign out</a>
               [[else:]]
               <a class="button is-primary goldbutton" href="[[=URL('auth/register')]]">Sign up</a>
               <a class="button is-light" href="[[=URL('auth/login')]]">Sign in</a>

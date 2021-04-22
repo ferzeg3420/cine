@@ -5,13 +5,16 @@
     auth.data = function() {
         var parts = window.location.href.split('?')[0].split('/');
         var data = {
-            plugins: this.plugin && this.plugins.split(','),
+            /*plugins: this.plugin && this.plugins.split(','), 
+             // The name plugins was causing errors because of the prop with the same name.
+             // Atm no plugins are being used. But if you want to add oauth for facebook and
+             // google, then use a different name. OAuthPlugins would be a good name.*/
             page: parts[parts.length-1],
             next: utils.getQuery()['next'] || '../index',
             form: {},
             errors: {},
             user: null,
-            use_username: true
+            use_username: false
         };
         return data;
     };
@@ -103,13 +106,10 @@
         window.addEventListener('popstate', function (event) {
             self.go(event.state.page, true);
         }, false);
-        axios.get('../auth/api/use_username').then(function(res) {
-            self.use_username = res.data.use_username;
-        });
     };
     utils.register_vue_component('auth', 'components/auth.html', function(template) {
-            auth.template = template.data;
-            return auth;
-        });
+        auth.template = template.data;
+        return auth;
+    });
 
 })();
