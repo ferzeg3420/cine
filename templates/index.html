@@ -227,10 +227,12 @@
                                     {{rp.name}}
                                 </td>
                                 <td>
-                                    <span class="has-text-link is-pulled-right" v-if="rp.status==1" @click="add_friend(rp.id)" style="cursor:pointer">
+                                    <span class="has-text-link is-pulled-right"
+                                          v-if="rp.status==1"
+                                          @click="add_friend(rp.id)"
+                                          style="cursor:pointer">
                                         <i class="fas fa-user-plus"></i>
                                     </span>
-
                                     <span class="has-text-link is-pulled-right" v-if="rp.status==2">
                                         Waiting...
                                     </span>
@@ -347,6 +349,7 @@
     let add_friend_url= "[[=XML(add_friend_url)]]";
     let accept_friend_url= "[[=XML(accept_friend_url)]]";
     let save_msg_url= "[[=XML(save_msg_url)]]";
+    let checkNewInvitationsURL = "[[=XML(check_new_invitations_url)]]";
     let fetch_msg_url= "[[=XML(fetch_msg_url)]]";
     let getOrderURL = "[[=XML(get_order_url)]]";
     let saveOrderURL = "[[=XML(save_order_url)]]";

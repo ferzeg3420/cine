@@ -125,6 +125,13 @@ db.define_table(
     Field('data', 'list:string', default=[]),
 )
 
+db.define_table(
+    'update_alert',
+    Field('user', 'reference auth_user'),
+    Field('alert_type', 'text'),
+    Field('has_unseen_invitation', 'boolean'),
+)
+
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'pydal_movies.csv')
 

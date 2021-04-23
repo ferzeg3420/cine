@@ -47,6 +47,8 @@ size_of_the_database = 1000
 
 users = {}
 
+FRIEND_REQUEST = "friend_request"
+
 default_div_orderings = [
     "1",
     "none",
@@ -234,6 +236,7 @@ def index():
     globals()['user'] = user
     chat_socket_url = \
         "wss://" + request.environ.get('HTTP_HOST') + URL('chatsocket')
+    print("check_new_invitations:", URL('check_new_invitations'))
 
     return dict(
         user=user,
@@ -257,6 +260,7 @@ def index():
         generate_ticket_url=URL('generate_ticket'), #new
         load_contacts_url=URL('get_contacts'), #new
         load_messages_url=URL('load_messages'), #new
+        check_new_invitations_url=URL('check_new_invitations', signer=url_signer), #new
     )
 
 #returns movies the user hasn't liked or favorited
@@ -313,8 +317,10 @@ def load_friends():
     return dict(rows=rows)
 
 @action('load_rec_people')
-@action.uses(url_signer.verify())
+@action.uses(url_signer.verify(), auth.user)
 def load_rec_people():
+    print("----> load_rec_people")
+    user_id = auth.current_user.get('id')
     rows_ = [ i[0] for i in get_rec_people().items() ]
     rows = []
     for i in rows_:
@@ -322,6 +328,15 @@ def load_rec_people():
         rows.append({"id": i,
 					 "name": username,
 					 "status": get_status(i)})
+    print("----> ping")
+    update_alert_id = db.update_alert.update_or_insert(
+        ((db.update_alert.user == user_id) &\
+            (db.update_alert.alert_type == FRIEND_REQUEST)),
+        user=user_id,
+        alert_type=FRIEND_REQUEST,
+        has_unseen_invitation=False
+    )
+    print("----> pong", update_alert_id)
     return dict(rows=rows)
 
 @action('load_reviews')
@@ -599,6 +614,13 @@ def add_friend():
     user_requested = request.json.get('user_requested')
     db.friends.insert(requester=requester, user_requested=user_requested, status=2)
     db.friends.insert(requester=user_requested, user_requested=requester, status=3)
+    db.update_alert.update_or_insert( #new
+        ((db.update_alert.user == user_requested) &\
+            (db.update_alert.alert_type == FRIEND_REQUEST)),
+        user=user_requested,
+        alert_type=FRIEND_REQUEST,
+        has_unseen_invitation=True
+    )
     return "ok"
 
 @action('accept_friend', method="POST")
@@ -627,14 +649,21 @@ def accept_friend():
                 interlocutor_a=int(requester),
                 interlocutor_b=user_requested,
             )
+        db.update_alert.update_or_insert(#new
+            ((db.update_alert.user == requester) &\
+                (db.update_alert.alert_type == FRIEND_REQUEST)),
+            user=requester,
+            alert_type=FRIEND_REQUEST,
+            has_unseen_invitation=True
+        )
         db.contacts.update_or_insert(
             friend_a=user_requested,
             friend_b=requester,
-        ) # now
+        ) 
         db.contacts.update_or_insert(
             friend_a=requester,
             friend_b=user_requested,
-        ) # now
+        ) 
     else:
         is_friendship = 0
     return is_friendship
@@ -881,3 +910,18 @@ def add_review():
         data=div_orders
     )
     return "ok"
+
+@action('check_new_invitations', method="GET")
+@action.uses(url_signer.verify(), auth.user, db)
+def check_new_invitations():
+    user_id = auth.current_user.get('id')
+    has_unseen_invitation_row = \
+        db( (db.update_alert.user == user_id) & \
+            (db.update_alert.alert_type == FRIEND_REQUEST) ).select( \
+                db.update_alert.has_unseen_invitation \
+            ).first()
+    if has_unseen_invitation_row is None:
+        return dict(has_unseen_invitation=False)
+    has_unseen_invitation = has_unseen_invitation_row.get('has_unseen_invitation')
+    return dict(reload_recs=has_unseen_invitation)
+

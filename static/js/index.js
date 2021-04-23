@@ -94,7 +94,6 @@ let init = (app) => {
             {params: {"user_movie": "moana"}}
         ).then( (result) => {
             if (result.data.rows.length > 5) {
-                console.log("pring");
                 app.vue.is_show_more_favs_opt = true;
                 let result_rows = app.vue.enumerate(result.data.rows);
                 app.vue.favorites = [];
@@ -131,7 +130,6 @@ let init = (app) => {
             {params: {"user_movie": "moana"}}
         ).then( (result) => {
             if (result.data.rows.length > 5) {
-                console.log("pring");
                 app.vue.is_show_more_rec_people_opt = true;
                 let result_rows = app.vue.enumerate(result.data.rows);
                 app.vue.rec_people = [];
@@ -166,7 +164,6 @@ let init = (app) => {
             {params: {"user_movie": "moana"}}
         ).then( (result) => {
             if (result.data.rows.length > 5) {
-                console.log("pring");
                 app.vue.is_show_more_friends_opt = true;
                 let result_rows = app.vue.enumerate(result.data.rows);
                 app.vue.friends = [];
@@ -201,7 +198,6 @@ let init = (app) => {
             {params: {"user_movie": "moana"}}
         ).then( (result) => {
             if (result.data.rows.length > 5) {
-                console.log("pring");
                 app.vue.is_show_more_reviews_opt = true;
                 let result_rows = app.vue.enumerate(result.data.rows);
                 app.vue.reviews = [];
@@ -237,7 +233,6 @@ let init = (app) => {
     };
 
     app.clickHandler = (e, fromSocketId, isInnerDiv) => {
-        console.log("clickHandler");
         let fromSocket = 
             document.getElementById(fromSocketId);
         let draggedElement = fromSocket.firstElementChild;
@@ -263,9 +258,6 @@ let init = (app) => {
         draggedElement.style.opacity = "0.9";
         draggedElement.style.zIndex = "99";
         if( isInnerDiv ) {
-            console.log("total: top of the dragged elemn:", rect.top + verticalScroll);
-            console.log("top of the dragged elemn:", rect.top);
-            console.log("verticalscroll:", verticalScroll);
             draggedElement.style.top = (rect.top + verticalScroll) + "px";
         }
         else {
@@ -304,11 +296,9 @@ let init = (app) => {
             iter.bottom = newBottom;
             iter.right = newRight;
             iter.left = newLeft;
-            console.log(`iter: top: ${newTop} bottom: ${newBottom}`);
         }
   
         document.onmouseup = (e) => {
-            console.log("onmouseup");
             draggedElement.style.position = positionSave;
             draggedElement.style.opacity = opacitySave;
             draggedElement.style.zIndex = zIndexSave;
@@ -322,7 +312,6 @@ let init = (app) => {
         };
   
         document.onmousemove = (e) => {
-            console.log("onmousemove");
             e = e || window.event;
             e.preventDefault();
             if( isInnerDiv ) {
@@ -333,7 +322,6 @@ let init = (app) => {
             }
             let posY = e.clientY + window.scrollY;
             let posX = e.clientX + window.scrollX;
-            console.log(`cursor: posY: ${posY}`);
             for( let iter of hitboxes ) {
                 if( isInnerDiv && (iter.side !== side ) ) {
                     continue;
@@ -342,7 +330,6 @@ let init = (app) => {
                     if( posY > iter.top
                         && posY < iter.bottom)
                     {
-                        console.log(`iter.top: ${iter.top} bot: ${iter.bottom}`);
                         if( fromSocketId != iter.elmn.id ) {
                             app.vue.mouseenterHandler(fromSocketId,
                                                       iter.elmn.id,
@@ -368,13 +355,10 @@ let init = (app) => {
             }
         };
     };
-    console.log("ping after click"); 
-
     app.mouseenterHandler = (fromSocketId,
                              targetSocketId,
                              side,
                              hitboxes) => {
-        console.log("mouseenterHandler");
         let fromSocket = document.getElementById(fromSocketId);
         let targetSocket = document.getElementById(targetSocketId);
         let fromSocketOrder = parseInt(fromSocket.style.order);
@@ -432,7 +416,6 @@ let init = (app) => {
         }
     };
     app.updateOrder = (newOrder) => {
-        console.log("updateOrder");
         for(let i = 0; i < 3; i++) {
             let order = newOrder[i * 2];
             let side = newOrder[i * 2 + 1];
@@ -448,7 +431,6 @@ let init = (app) => {
     };
 
     app.getOrders = () => {
-        console.log("getOrders");
         axios.get(getOrderURL)
         .then((response) => {
             // handle success
@@ -457,7 +439,6 @@ let init = (app) => {
     };
 
     app.saveOrders = () => {
-        console.log("saveOrders");
         let hitboxesPayload = [];
         for( let iter of app.vue.outerHitboxes) {
             hitboxesPayload.push(iter.elmn.style.order);
@@ -512,7 +493,6 @@ let init = (app) => {
     });
 
     app.init = () => {
-        console.log("app.vue.clickHandler:", app.vue.clickHandler);
         app.vue.getOrders();
         const numItemsOnLeftSide = 3;
         let orderIter = 0;
@@ -624,8 +604,49 @@ let init = (app) => {
                 app.vue.is_no_reviews = true;
             }
         });
+        setInterval( () => { 
+            axios.get(checkNewInvitationsURL)
+                 .then( (res) => {
+                    if( res.data.reload_recs ) {
+                       axios.get(load_friends_url,
+                           {params: {"user_movie": "moana"}}
+                       ).then( (result) => {
+                           if (result.data.rows.length > 5) {
+                               app.vue.is_show_more_friends_opt = true;
+                               app.vue.is_hide_friends_opt =  false;
+                               let result_rows = app.vue.enumerate(result.data.rows);
+                               for (let i = 0; i < 5; i++) {
+                                   app.vue.friends[i] = result_rows[i];
+                               }
+                           } else {
+                               app.vue.friends = app.vue.enumerate(result.data.rows);
+                           }
+                       });
+                        axios.get(load_rec_people_url, 
+                            {params: {"user_movie": "moana"}}
+                        ).then( (result) => {
+                            if (result.data.rows.length > 5) {
+                                app.vue.is_show_more_rec_people_opt = true;
+                                app.vue.is_hide_rec_people_opt =  false;
+                                let result_rows = app.vue.enumerate(result.data.rows);
+                                for (let i = 0; i < 5; i++) {
+                                    app.vue.rec_people[i] = result_rows[i];
+                                }
+                            } else {
+                                app.vue.rec_people = app.vue.enumerate(result.data.rows);
+                            }
+                            if (result.data.rows.length == 0) {
+                                app.vue.is_no_rec_people = true;
+                            }
+                            else {
+                                app.vue.is_no_rec_people = false;
+                            }
+                        });
+                    }
+                });
+        }, 5000);
+        app.vue.ping();
     };
-    console.log("pretty woman!");
     app.init();
 };
 
