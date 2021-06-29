@@ -2,7 +2,7 @@
 *.swp
 
 # Ignore the temp database and all related files. (Will hopefully remember to delete if this becomes something)
-**/databases
+databases/*
 
 # Mac/OSX Finder metadata
 .DS_Store
